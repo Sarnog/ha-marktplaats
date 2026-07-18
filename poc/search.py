@@ -18,7 +18,7 @@ import argparse
 import json
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -31,8 +31,7 @@ try:
     import config
 except ModuleNotFoundError:
     sys.exit(
-        "config.py ontbreekt. Kopieer config.example.py naar config.py "
-        "en vul je eigen postcode in."
+        "config.py ontbreekt. Kopieer config.example.py naar config.py en vul je eigen postcode in."
     )
 
 API_URL = "https://www.marktplaats.nl/lrp/api/search"
@@ -146,9 +145,7 @@ def fetch_listings(
 
     if condition is not None:
         if condition not in CONDITIONS:
-            sys.exit(
-                f"Onbekende CONDITION '{condition}'. Kies uit: {', '.join(CONDITIONS)}."
-            )
+            sys.exit(f"Onbekende CONDITION '{condition}'. Kies uit: {', '.join(CONDITIONS)}.")
         params["attributesById[]"] = [str(CONDITIONS[condition])]
 
     if l1_category_id is not None:
@@ -186,10 +183,8 @@ def run_once(postcode: str) -> None:
     seen_ids = load_seen_ids()
     new_listings = [item for item in listings if item["itemId"] not in seen_ids]
 
-    timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    print(
-        f"[{timestamp}] {len(listings)} resultaten opgehaald, {len(new_listings)} nieuw."
-    )
+    timestamp = datetime.now(UTC).isoformat(timespec="seconds")
+    print(f"[{timestamp}] {len(listings)} resultaten opgehaald, {len(new_listings)} nieuw.")
 
     for item in new_listings:
         price_cents = item.get("priceInfo", {}).get("priceCents")
