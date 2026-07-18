@@ -5,8 +5,8 @@ A Home Assistant integration for structurally searching for items or services on
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
 
-**Status: stap 3 van de roadmap - installeerbaar als HACS custom repository (nog niet in de standaard HACS-store, dat vereist een aparte aanmelding bij HACS zelf).**
-**Status: roadmap step 3 - installable as a HACS custom repository (not yet in the default HACS store, which requires a separate submission to HACS itself).**
+**Status: installeerbaar als HACS custom repository; aanmelding bij de standaard HACS-store staat in de reviewwachtrij. Zie [`ROADMAP.md`](ROADMAP.md) voor de volledige planning.**
+**Status: installable as a HACS custom repository; submission to the default HACS store is in the review queue. See [`ROADMAP.md`](ROADMAP.md) for the full plan.**
 
 ## NL
 
@@ -114,18 +114,11 @@ python search.py                 # blijft draaien, elke INTERVAL_MINUTES (min. 1
 
 ### Roadmap
 
-1. ~~Proof-of-concept~~ - bevestigd: het endpoint werkt, radius/prijs/conditie-filters
-   werken, HA-thuislocatie kan naar een postcode omgezet worden.
-2. ~~Home Assistant custom_component~~ - config flow (aanmaken + herconfigureren) met
-   optionele filters, coordinator met dedupe-opslag en event, sensor-platform.
-3. ~~Publiceren als HACS custom repository~~ - LICENSE, hassfest/HACS-validatie-workflows
-   en een echte GitHub Release toegevoegd; installeerbaar via de HACS-badge bovenaan.
-   Opname in de standaard HACS-store zelf is een aparte, latere aanmelding/review.
-4. (Later, apart traject) Optioneel automatisch bieden/kopen met een vooraf ingesteld
-   maximumbedrag - hoog risico op accountblokkade en vereist opslag van
-   Marktplaats-inloggegevens, dus dit wordt pas opgepakt na een expliciete beslissing en
-   waarschijnlijk eerst als "open advertentie in app"-actie in plaats van volledige
-   automatisering.
+Stap 1 (proof-of-concept), stap 2 (custom_component) en stap 3 (HACS custom
+repository) zijn af; stap 4 (aanmelding standaard HACS-store) staat in de
+reviewwachtrij. Volledige, actuele planning - inclusief geplande functionaliteit
+(rijkere meldingen met titel/prijs/locatie) en toekomstideeën - staat in
+[`ROADMAP.md`](ROADMAP.md), dat bij elke wijziging wordt bijgewerkt.
 
 ## EN
 
@@ -228,14 +221,8 @@ python search.py                 # runs continuously, every INTERVAL_MINUTES (mi
 
 ### Roadmap
 
-1. ~~Proof-of-concept~~ - confirmed: the endpoint works, radius/price/condition filters
-   work, the HA home location can be resolved to a postcode.
-2. ~~Home Assistant custom_component~~ - config flow (add + reconfigure) with optional
-   filters, a coordinator with dedupe storage and an event, a sensor platform.
-3. ~~Publish as a HACS custom repository~~ - added a LICENSE, hassfest/HACS validation
-   workflows, and a real GitHub Release; installable via the HACS badge above. Inclusion
-   in the default HACS store itself is a separate, later submission/review.
-4. (Later, separate effort) Optional automatic bidding/buying up to a preconfigured
-   maximum price - high risk of account suspension and requires storing Marktplaats
-   credentials, so this will only be picked up after an explicit decision, and likely
-   starts as an "open listing in app" action rather than full automation.
+Step 1 (proof-of-concept), step 2 (custom_component), and step 3 (HACS custom
+repository) are done; step 4 (default HACS store submission) is in the review queue.
+The complete, current plan - including planned functionality (richer notifications
+with title/price/location) and future ideas - lives in [`ROADMAP.md`](ROADMAP.md),
+which gets updated on every change.
