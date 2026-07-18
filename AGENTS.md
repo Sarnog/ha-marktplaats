@@ -27,6 +27,12 @@ dit project (blijft bestaan ook als externe geheugenopslag ooit leeg raakt).
      vermoede bugs waar mogelijk empirisch in plaats van er alleen over te
      redeneren.
   4. Pas daarna committen en pushen.
+- **ROADMAP.md bijhouden**: `ROADMAP.md` is de volledige, actuele planning —
+  niet een eenmalig document. Bij elke wijziging die iets afrondt, start of
+  verandert aan geplande functionaliteit, en bij elk nieuw idee (ook nog
+  niet besproken of goedgekeurde ideeën van Claude zelf), wordt dit bestand
+  bijgewerkt, zonder dat erom gevraagd hoeft te worden. `README.md`'s
+  roadmap-sectie blijft een korte verwijzing hiernaar, geen dubbele detail.
 
 ## EN
 
@@ -53,3 +59,9 @@ agreements (survives even if external memory storage is ever cleared).
      empirically where possible rather than only reasoning about them
      abstractly.
   4. Only then commit and push.
+- **Keep ROADMAP.md current**: `ROADMAP.md` is the complete, current plan —
+  not a one-off document. On every change that finishes, starts, or changes
+  planned functionality, and on every new idea (including ones from Claude
+  that haven't been discussed or approved yet), update this file,
+  unprompted. `README.md`'s roadmap section stays a short pointer to it,
+  not duplicated detail.
