@@ -1,0 +1,64 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "New Marktplaats search",
+        "description": "Only the search term is required. Leave the postcode empty to use your Home Assistant home location.",
+        "data": {
+          "query": "Search term",
+          "name": "Name (optional, defaults to the search term)",
+          "postcode": "Postcode (optional, defaults to your HA home location)",
+          "radius_km": "Radius in km",
+          "min_price": "Minimum price in euros (optional)",
+          "max_price": "Maximum price in euros (optional)",
+          "condition": "Condition (optional)",
+          "l1_category_id": "Top-level category ID (optional)",
+          "l2_category_id": "Sub-category ID (optional)",
+          "scan_interval_minutes": "Search interval in minutes (15 minimum)"
+        }
+      },
+      "reconfigure": {
+        "title": "Update Marktplaats search",
+        "description": "Only the search term is required. Leave the postcode empty to use your Home Assistant home location.",
+        "data": {
+          "query": "Search term",
+          "name": "Name (optional, defaults to the search term)",
+          "postcode": "Postcode (optional, defaults to your HA home location)",
+          "radius_km": "Radius in km",
+          "min_price": "Minimum price in euros (optional)",
+          "max_price": "Maximum price in euros (optional)",
+          "condition": "Condition (optional)",
+          "l1_category_id": "Top-level category ID (optional)",
+          "l2_category_id": "Sub-category ID (optional)",
+          "scan_interval_minutes": "Search interval in minutes (15 minimum)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to Marktplaats, or this search returns an error.",
+      "postcode_resolution_failed": "Could not derive a postcode from your Home Assistant home location. Please enter a postcode manually."
+    },
+    "abort": {
+      "already_configured": "This exact search (term + location + filters) already exists.",
+      "unique_id_mismatch": "This change turns the search into a different search than the one this entry was originally created for. Add a new search instead."
+    }
+  },
+  "selector": {
+    "condition": {
+      "options": {
+        "nieuw": "New",
+        "zo_goed_als_nieuw": "As good as new",
+        "gebruikt": "Used",
+        "refurbished": "Refurbished",
+        "niet_werkend": "Not working"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "matching_listings": {
+        "name": "Listings"
+      }
+    }
+  }
+}

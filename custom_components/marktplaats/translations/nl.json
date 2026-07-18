@@ -1,0 +1,64 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nieuwe Marktplaats-zoekopdracht",
+        "description": "Alleen de zoekterm is verplicht. Laat de postcode leeg om je Home Assistant-thuislocatie te gebruiken.",
+        "data": {
+          "query": "Zoekterm",
+          "name": "Naam (optioneel, standaard de zoekterm)",
+          "postcode": "Postcode (optioneel, standaard je HA-thuislocatie)",
+          "radius_km": "Straal in km",
+          "min_price": "Minimumprijs in euro (optioneel)",
+          "max_price": "Maximumprijs in euro (optioneel)",
+          "condition": "Conditie (optioneel)",
+          "l1_category_id": "Hoofdcategorie-ID (optioneel)",
+          "l2_category_id": "Subcategorie-ID (optioneel)",
+          "scan_interval_minutes": "Zoekinterval in minuten (minimaal 15)"
+        }
+      },
+      "reconfigure": {
+        "title": "Marktplaats-zoekopdracht aanpassen",
+        "description": "Alleen de zoekterm is verplicht. Laat de postcode leeg om je Home Assistant-thuislocatie te gebruiken.",
+        "data": {
+          "query": "Zoekterm",
+          "name": "Naam (optioneel, standaard de zoekterm)",
+          "postcode": "Postcode (optioneel, standaard je HA-thuislocatie)",
+          "radius_km": "Straal in km",
+          "min_price": "Minimumprijs in euro (optioneel)",
+          "max_price": "Maximumprijs in euro (optioneel)",
+          "condition": "Conditie (optioneel)",
+          "l1_category_id": "Hoofdcategorie-ID (optioneel)",
+          "l2_category_id": "Subcategorie-ID (optioneel)",
+          "scan_interval_minutes": "Zoekinterval in minuten (minimaal 15)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan geen verbinding maken met Marktplaats, of deze zoekopdracht levert een foutmelding op.",
+      "postcode_resolution_failed": "Kon geen postcode afleiden uit je Home Assistant-thuislocatie. Vul handmatig een postcode in."
+    },
+    "abort": {
+      "already_configured": "Deze exacte zoekopdracht (zoekterm + locatie + filters) bestaat al.",
+      "unique_id_mismatch": "Deze wijziging verandert de zoekopdracht in een andere zoekopdracht dan waarvoor deze entry oorspronkelijk is aangemaakt. Voeg in plaats daarvan een nieuwe zoekopdracht toe."
+    }
+  },
+  "selector": {
+    "condition": {
+      "options": {
+        "nieuw": "Nieuw",
+        "zo_goed_als_nieuw": "Zo goed als nieuw",
+        "gebruikt": "Gebruikt",
+        "refurbished": "Refurbished",
+        "niet_werkend": "Niet werkend"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "matching_listings": {
+        "name": "Advertenties"
+      }
+    }
+  }
+}
