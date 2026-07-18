@@ -3,8 +3,10 @@
 Een integratie voor Home Assistant om structureel naar items of diensten te zoeken op marktplaats.
 A Home Assistant integration for structurally searching for items or services on Marktplaats.
 
-**Status: stap 2 van de roadmap is klaar (werkende custom_component), nog niet gepubliceerd als HACS custom repository (stap 3).**
-**Status: roadmap step 2 is done (working custom_component), not yet published as a HACS custom repository (step 3).**
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
+
+**Status: stap 3 van de roadmap - installeerbaar als HACS custom repository (nog niet in de standaard HACS-store, dat vereist een aparte aanmelding bij HACS zelf).**
+**Status: roadmap step 3 - installable as a HACS custom repository (not yet in the default HACS store, which requires a separate submission to HACS itself).**
 
 ## NL
 
@@ -25,17 +27,19 @@ aanroept. Zie "Bekende risico's" hieronder.
 
 ### Installatie
 
-Nog niet beschikbaar via de HACS-store (dat is stap 3). Tot die tijd, handmatig:
+**Via HACS** (aanbevolen): klik de badge bovenaan dit bestand, of voeg deze repository
+handmatig toe als **custom repository** in HACS (HACS > drie puntjes > Aangepaste
+repositories > deze GitHub-URL, categorie "Integratie"). Dit is nog geen opname in de
+standaard HACS-store zelf (dat vereist een aparte aanmelding/review bij HACS), maar
+werkt verder identiek.
+
+**Handmatig**, als alternatief:
 
 1. Kopieer de map `custom_components/marktplaats` naar de `custom_components`-map van
    je Home Assistant-configuratie.
 2. Herstart Home Assistant.
 3. **Instellingen > Apparaten & diensten > Integratie toevoegen** en zoek naar
    "Marktplaats".
-
-Of voeg deze repository toe als **custom repository** in HACS
-(HACS > drie puntjes > Aangepaste repositories > deze GitHub-URL, categorie
-"Integratie").
 
 ### Een zoekopdracht toevoegen
 
@@ -114,7 +118,9 @@ python search.py                 # blijft draaien, elke INTERVAL_MINUTES (min. 1
    werken, HA-thuislocatie kan naar een postcode omgezet worden.
 2. ~~Home Assistant custom_component~~ - config flow (aanmaken + herconfigureren) met
    optionele filters, coordinator met dedupe-opslag en event, sensor-platform.
-3. Publiceren als HACS custom repository.
+3. ~~Publiceren als HACS custom repository~~ - LICENSE, hassfest/HACS-validatie-workflows
+   en een echte GitHub Release toegevoegd; installeerbaar via de HACS-badge bovenaan.
+   Opname in de standaard HACS-store zelf is een aparte, latere aanmelding/review.
 4. (Later, apart traject) Optioneel automatisch bieden/kopen met een vooraf ingesteld
    maximumbedrag - hoog risico op accountblokkade en vereist opslag van
    Marktplaats-inloggegevens, dus dit wordt pas opgepakt na een expliciete beslissing en
@@ -140,15 +146,18 @@ risks" below.
 
 ### Installation
 
-Not yet available via the HACS store (that's step 3). Until then, manually:
+**Via HACS** (recommended): click the badge at the top of this file, or add this
+repository manually as a **custom repository** in HACS (HACS > three dots > Custom
+repositories > this GitHub URL, category "Integration"). This isn't inclusion in the
+default HACS store itself yet (that requires a separate submission/review with HACS),
+but otherwise works identically.
+
+**Manually**, as an alternative:
 
 1. Copy the `custom_components/marktplaats` folder into your Home Assistant
    configuration's `custom_components` folder.
 2. Restart Home Assistant.
 3. **Settings > Devices & services > Add integration** and search for "Marktplaats".
-
-Or add this repository as a **custom repository** in HACS (HACS > three dots > Custom
-repositories > this GitHub URL, category "Integration").
 
 ### Adding a search
 
@@ -223,7 +232,9 @@ python search.py                 # runs continuously, every INTERVAL_MINUTES (mi
    work, the HA home location can be resolved to a postcode.
 2. ~~Home Assistant custom_component~~ - config flow (add + reconfigure) with optional
    filters, a coordinator with dedupe storage and an event, a sensor platform.
-3. Publish as a HACS custom repository.
+3. ~~Publish as a HACS custom repository~~ - added a LICENSE, hassfest/HACS validation
+   workflows, and a real GitHub Release; installable via the HACS badge above. Inclusion
+   in the default HACS store itself is a separate, later submission/review.
 4. (Later, separate effort) Optional automatic bidding/buying up to a preconfigured
    maximum price - high risk of account suspension and requires storing Marktplaats
    credentials, so this will only be picked up after an explicit decision, and likely
