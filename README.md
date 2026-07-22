@@ -1,6 +1,14 @@
-##### NL
+<div align="center">
+  <!-- align="center" centreert alles binnen deze div -->
+  <h1>
+    <!-- h1 = grootste kop, standaard al dikgedrukt en groot -->
+    <ins>Marktplaats</ins>
+    <!-- ins = onderstreepte tekst op GitHub -->
+  </h1>
+</div>
 
-# ha-marktplaats
+
+##### <ins>NL</ins>
 
 Een integratie voor Home Assistant om structureel naar items of diensten te zoeken op marktplaats.
 
@@ -146,13 +154,11 @@ reviewwachtrij. Volledige, actuele planning - inclusief geplande functionaliteit
 [`ROADMAP.md`](ROADMAP.md), dat bij elke wijziging wordt bijgewerkt.
 
 
-======================================================================================
+---
 
 
 
-##### EN
-
-# ha-marktplaats
+##### <ins>EN</ins>
 
 A Home Assistant integration for structurally searching for items or services on Marktplaats.
 
