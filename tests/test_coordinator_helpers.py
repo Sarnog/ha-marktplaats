@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from custom_components.marktplaats.coordinator import MarktplaatsData, _first_image_url
+from custom_components.marktplaats.coordinator import (
+    MarktplaatsData,
+    _build_notify_payload,
+    _first_image_url,
+    _format_price,
+)
 
 
 def test_first_image_url_adds_https_to_protocol_relative_url() -> None:
@@ -27,3 +32,43 @@ def test_marktplaats_data_defaults_to_empty_lists() -> None:
 
     assert data.new_listings == []
     assert data.all_listings == []
+
+
+def test_format_price_converts_cents_with_dutch_decimal_comma() -> None:
+    item = {"priceInfo": {"priceCents": 1999}}
+
+    assert _format_price(item) == "€ 19,99"
+
+
+def test_format_price_returns_none_without_price_cents() -> None:
+    # priceType (bv. "ON_REQUEST") is nooit empirisch geverifieerd als vaste
+    # enum-lijst, dus geen prijs is beter dan een geraden label.
+    assert _format_price({"priceInfo": {"priceType": "ON_REQUEST"}}) is None
+    assert _format_price({}) is None
+
+
+def test_build_notify_payload_includes_title_price_location_and_url() -> None:
+    item = {
+        "itemId": "m123",
+        "title": "Vintage fiets",
+        "priceInfo": {"priceCents": 15000},
+        "location": {"cityName": "Utrecht"},
+        "imageUrls": ["//images.marktplaats.com/foo.jpg"],
+    }
+
+    payload = _build_notify_payload(item)
+
+    assert payload["title"] == "Vintage fiets"
+    assert "€ 150,00" in payload["message"]
+    assert "Utrecht" in payload["message"]
+    assert "https://link.marktplaats.nl/m123" in payload["message"]
+    assert payload["data"] == {"image": "https://images.marktplaats.com/foo.jpg"}
+
+
+def test_build_notify_payload_omits_data_without_image() -> None:
+    item = {"itemId": "m456", "title": "Bureau", "priceInfo": {}, "location": {}}
+
+    payload = _build_notify_payload(item)
+
+    assert "data" not in payload
+    assert payload["message"] == "https://link.marktplaats.nl/m456"

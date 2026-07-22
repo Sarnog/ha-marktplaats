@@ -11,7 +11,11 @@ from __future__ import annotations
 import pytest
 import voluptuous as vol
 
-from custom_components.marktplaats.config_flow import DATA_SCHEMA, _build_unique_id
+from custom_components.marktplaats.config_flow import (
+    DATA_SCHEMA,
+    _build_unique_id,
+    _normalize_notify_service,
+)
 
 
 def test_only_query_is_required() -> None:
@@ -63,3 +67,11 @@ def test_build_unique_id_differs_when_filters_differ() -> None:
     with_price = {**base, "min_price": 50.0}
 
     assert _build_unique_id(base) != _build_unique_id(with_price)
+
+
+def test_normalize_notify_service_strips_notify_prefix_and_whitespace() -> None:
+    assert _normalize_notify_service(" notify.mobile_app_telefoon ") == "mobile_app_telefoon"
+
+
+def test_normalize_notify_service_leaves_bare_service_name_untouched() -> None:
+    assert _normalize_notify_service("mobile_app_telefoon") == "mobile_app_telefoon"

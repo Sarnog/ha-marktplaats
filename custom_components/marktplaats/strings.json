@@ -14,7 +14,8 @@
           "condition": "Condition (optional)",
           "l1_category_id": "Top-level category ID (optional)",
           "l2_category_id": "Sub-category ID (optional)",
-          "scan_interval_minutes": "Search interval in minutes (15 minimum)"
+          "scan_interval_minutes": "Search interval in minutes (15 minimum)",
+          "notify_service": "Notify service name (optional, e.g. \"mobile_app_phone\", found under Developer Tools > Actions) - sends a push notification with title, price, location and photo for each new listing. Must be a classic per-target notify service; the generic notification entity can't attach a photo."
         }
       },
       "reconfigure": {
@@ -30,7 +31,8 @@
           "condition": "Condition (optional)",
           "l1_category_id": "Top-level category ID (optional)",
           "l2_category_id": "Sub-category ID (optional)",
-          "scan_interval_minutes": "Search interval in minutes (15 minimum)"
+          "scan_interval_minutes": "Search interval in minutes (15 minimum)",
+          "notify_service": "Notify service name (optional, e.g. \"mobile_app_phone\", found under Developer Tools > Actions) - sends a push notification with title, price, location and photo for each new listing. Must be a classic per-target notify service; the generic notification entity can't attach a photo."
         }
       }
     },

@@ -14,7 +14,8 @@
           "condition": "Conditie (optioneel)",
           "l1_category_id": "Hoofdcategorie-ID (optioneel)",
           "l2_category_id": "Subcategorie-ID (optioneel)",
-          "scan_interval_minutes": "Zoekinterval in minuten (minimaal 15)"
+          "scan_interval_minutes": "Zoekinterval in minuten (minimaal 15)",
+          "notify_service": "Notify-servicenaam (optioneel, bv. \"mobile_app_telefoon\", te vinden via Ontwikkelaarstools > Acties) - stuurt een pushmelding met titel, prijs, locatie en foto bij elke nieuwe advertentie. Moet een klassieke, per-doel notify-service zijn; de generieke notificatie-entity kan geen foto bijvoegen."
         }
       },
       "reconfigure": {
@@ -30,7 +31,8 @@
           "condition": "Conditie (optioneel)",
           "l1_category_id": "Hoofdcategorie-ID (optioneel)",
           "l2_category_id": "Subcategorie-ID (optioneel)",
-          "scan_interval_minutes": "Zoekinterval in minuten (minimaal 15)"
+          "scan_interval_minutes": "Zoekinterval in minuten (minimaal 15)",
+          "notify_service": "Notify-servicenaam (optioneel, bv. \"mobile_app_telefoon\", te vinden via Ontwikkelaarstools > Acties) - stuurt een pushmelding met titel, prijs, locatie en foto bij elke nieuwe advertentie. Moet een klassieke, per-doel notify-service zijn; de generieke notificatie-entity kan geen foto bijvoegen."
         }
       }
     },

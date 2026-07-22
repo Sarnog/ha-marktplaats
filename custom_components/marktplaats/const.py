@@ -39,6 +39,14 @@ CONF_CONDITION = "condition"
 CONF_L1_CATEGORY_ID = "l1_category_id"
 CONF_L2_CATEGORY_ID = "l2_category_id"
 CONF_SCAN_INTERVAL_MINUTES = "scan_interval_minutes"
+# Bewust een losse notify-SERVICEnaam (bv. "mobile_app_telefoon"), geen
+# entity_id via een EntitySelector: de moderne, entity-gebaseerde
+# notify.send_message-service accepteert geen "data"-veld meer (empirisch
+# geverifieerd tegen HA 2026.7.3 - vol.Invalid: "extra keys not allowed"),
+# dus daarmee is een foto-bijlage niet mogelijk. Alleen de klassieke,
+# per-doel notify-service (zoals mobile_app nog steeds registreert náást
+# zijn entity) accepteert "data" en kan zo een foto meesturen.
+CONF_NOTIFY_SERVICE = "notify_service"
 
 DEFAULT_RADIUS_KM = 25
 DEFAULT_SCAN_INTERVAL_MINUTES = 15
