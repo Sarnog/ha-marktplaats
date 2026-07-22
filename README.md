@@ -1,16 +1,13 @@
+##### NL
+
 # ha-marktplaats
 
 Een integratie voor Home Assistant om structureel naar items of diensten te zoeken op marktplaats.
-A Home Assistant integration for structurally searching for items or services on Marktplaats.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
 [![Open your Home Assistant instance and show the blueprint import dialog.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
 
 **Status: installeerbaar als HACS custom repository; aanmelding bij de standaard HACS-store staat in de reviewwachtrij. Zie [`ROADMAP.md`](ROADMAP.md) voor de volledige planning.**
-
-**Status: installable as a HACS custom repository; submission to the default HACS store is in the review queue. See [`ROADMAP.md`](ROADMAP.md) for the full plan.**
-
-## NL
 
 ### Wat doet dit
 
@@ -148,7 +145,21 @@ reviewwachtrij. Volledige, actuele planning - inclusief geplande functionaliteit
 (rijkere meldingen met titel/prijs/locatie) en toekomstideeën - staat in
 [`ROADMAP.md`](ROADMAP.md), dat bij elke wijziging wordt bijgewerkt.
 
-## EN
+
+======================================================================================
+
+
+
+##### EN
+
+# ha-marktplaats
+
+A Home Assistant integration for structurally searching for items or services on Marktplaats.
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
+[![Open your Home Assistant instance and show the blueprint import dialog.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
+
+**Status: installable as a HACS custom repository; submission to the default HACS store is in the review queue. See [`ROADMAP.md`](ROADMAP.md) for the full plan.**
 
 ### What this does
 
