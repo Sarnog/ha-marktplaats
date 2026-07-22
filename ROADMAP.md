@@ -20,7 +20,7 @@ alleen als daar expliciet om gevraagd wordt. De korte roadmap-lijst in
    matchende advertenties.
 3. **Publiceren als HACS custom repository** - LICENSE, hassfest/HACS-validatie-
    workflows, brand-icoon (`custom_components/marktplaats/brand/`, Marktplaats' eigen
-   "coin"-logo), GitHub Releases (v0.1.0 t/m v0.1.2, zie versiegeschiedenis onderaan).
+   "coin"-logo), GitHub Releases (v0.1.0 t/m v0.1.3, zie versiegeschiedenis onderaan).
    Installeerbaar via de HACS-badge in de README.
 4. **Aanmelding bij de standaard HACS-store** - PR [hacs/default#9338](https://github.com/hacs/default/pull/9338)
    staat in de reviewwachtrij (niet automatisch afgewezen, wacht op een menselijke
@@ -96,6 +96,13 @@ app"-actie in plaats van volledige automatisering. Zie de "Bekende risico's" in
   (die repo accepteert sinds HA 2026.3.0 geen nieuwe custom-integratie-iconen meer).
 - **v0.1.2** - fix: `icon.png` (256x256) werd afgesneden/verschoven gerenderd door een
   bug in de render-pipeline (headless Chrome); `icon@2x.png` was altijd al goed.
+- **v0.1.3** - fix: de sensorwaarde toonde `len(listings)`, dat altijd afgekapt is op
+  de interne poll-limiet van 30 - bij een brede zoekterm (bv. "televisie") werd het
+  aantal dus ernstig te laag weergegeven (30 in plaats van bv. 2698 werkelijke
+  treffers). Gebruikt nu Marktplaats' eigen `totalResultCount`-veld uit de API-respons,
+  empirisch geverifieerd dat dit *niet* afgekapt wordt door de `limit`-parameter.
+  Gevonden doordat de gebruiker een afwijkend aantal zag t.o.v. handmatig zoeken op
+  marktplaats.nl.
 
 ## EN
 
@@ -117,7 +124,7 @@ idea, not only when explicitly asked. The short roadmap list in
    matching listings.
 3. **Publish as a HACS custom repository** - LICENSE, hassfest/HACS validation
    workflows, a brand icon (`custom_components/marktplaats/brand/`, Marktplaats' own
-   "coin" mark), GitHub Releases (v0.1.0 through v0.1.2, see version history below).
+   "coin" mark), GitHub Releases (v0.1.0 through v0.1.3, see version history below).
    Installable via the HACS badge in the README.
 4. **Submission to the default HACS store** - PR [hacs/default#9338](https://github.com/hacs/default/pull/9338)
    is in the review queue (not auto-rejected, waiting on a human reviewer - this can
@@ -191,3 +198,9 @@ action rather than full automation. See "Known risks" in [`README.md`](README.md
   of HA 2026.3.0).
 - **v0.1.2** - fix: `icon.png` (256x256) rendered cropped/off-center due to a bug in
   the render pipeline (headless Chrome); `icon@2x.png` was always fine.
+- **v0.1.3** - fix: the sensor state showed `len(listings)`, which is always capped at
+  the internal poll limit of 30 - for a broad search term (e.g. "televisie") the count
+  was therefore severely under-reported (30 instead of e.g. 2698 real matches). Now
+  uses Marktplaats' own `totalResultCount` field from the API response, empirically
+  verified to *not* be capped by the `limit` parameter. Found because the user saw a
+  mismatched count compared to a manual search on marktplaats.nl.
