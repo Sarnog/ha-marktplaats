@@ -4,6 +4,7 @@ Een integratie voor Home Assistant om structureel naar items of diensten te zoek
 A Home Assistant integration for structurally searching for items or services on Marktplaats.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
+[![Open your Home Assistant instance and show the blueprint import dialog.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
 
 **Status: installeerbaar als HACS custom repository; aanmelding bij de standaard HACS-store staat in de reviewwachtrij. Zie [`ROADMAP.md`](ROADMAP.md) voor de volledige planning.**
 
@@ -28,7 +29,7 @@ aanroept. Zie "Bekende risico's" hieronder.
 
 ### Installatie
 
-**Via HACS** (aanbevolen): klik de badge bovenaan dit bestand, of voeg deze repository
+**Via HACS** (aanbevolen): klik de HACS-badge bovenaan dit bestand, of voeg deze repository
 handmatig toe als **custom repository** in HACS (HACS > drie puntjes > Aangepaste
 repositories > deze GitHub-URL, categorie "Integratie"). Dit is nog geen opname in de
 standaard HACS-store zelf (dat vereist een aparte aanmelding/review bij HACS), maar
@@ -63,12 +64,33 @@ ook zoekterm en filters wijzigen is toegestaan (dat telt dan als een nieuwe
 zoekopdracht: eerder geziene advertenties worden niet meegenomen, zodat je niet in één
 keer overspoeld wordt met "nieuwe" meldingen voor advertenties die er al stonden).
 
-### Automations bouwen
+### Meldingen ontvangen
 
-Voor elke nieuwe advertentie wordt het event `marktplaats_new_listing` gevuurd, met in
-`event_data`: `entry_id`, `query`, `item_id`, `title`, `price_cents`, `price_type`,
-`url`, `location`, `image_url`. Bouw hier een automation op met een `notify`-actie naar
-je telefoon.
+Er zijn twee manieren, van simpel naar flexibel:
+
+1. **Ingebouwd, geen automation nodig.** Vul bij het (her)instellen van een
+   zoekopdracht een **notify-servicenaam** in (bv. `mobile_app_telefoon` -
+   te vinden via **Ontwikkelaarstools > Acties**, zoek op "notify", de naam
+   ná de punt is de servicenaam; een volledig `notify.xxx` mag ook, de
+   `notify.`-prefix wordt automatisch gestript). De integratie stuurt dan
+   zelf bij elke nieuwe advertentie een melding met titel, prijs, locatie,
+   link én foto. **Let op:** dit moet een klassieke, per-doel notify-service
+   zijn (zoals de HA Companion App die registreert), geen notify-entity - de
+   moderne, entity-gebaseerde `notify.send_message`-service ondersteunt sinds
+   Home Assistant's notify-entity-herontwerp geen foto-bijlage meer
+   (empirisch geverifieerd; zie [`ROADMAP.md`](ROADMAP.md) voor de technische
+   toelichting). Werkt de opgegeven service niet (meer), dan wordt dat alleen
+   als waarschuwing gelogd - de sensor en het event hieronder blijven gewoon
+   werken.
+2. **Zelf een automation bouwen**, voor volledige controle. Voor elke nieuwe
+   advertentie wordt het event `marktplaats_new_listing` gevuurd, met in
+   `event_data`: `entry_id`, `query`, `item_id`, `title`, `price_cents`,
+   `price_type`, `url`, `location`, `image_url`. Gebruik hiervoor eventueel de
+   kant-en-klare blueprint
+   [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
+   die laat je zelf een willekeurige melding-actie kiezen (dus ook een
+   moderne notify-entity) en rekent titel/prijs/locatie alvast voor je uit.
+   Klik de blueprint-badge bovenaan dit bestand om 'm direct te importeren.
 
 Daarnaast krijgt elke zoekopdracht een sensor (`sensor.<naam>_advertenties`) met als
 waarde het aantal momenteel matchende advertenties, en als attributen het aantal nieuwe
@@ -145,7 +167,7 @@ risks" below.
 
 ### Installation
 
-**Via HACS** (recommended): click the badge at the top of this file, or add this
+**Via HACS** (recommended): click the HACS badge at the top of this file, or add this
 repository manually as a **custom repository** in HACS (HACS > three dots > Custom
 repositories > this GitHub URL, category "Integration"). This isn't inclusion in the
 default HACS store itself yet (that requires a separate submission/review with HACS),
@@ -177,11 +199,31 @@ search term and filters is allowed too (that counts as a new search: previously-
 listings aren't carried over, so you don't get flooded with "new" notifications for
 listings that were already there).
 
-### Building automations
+### Getting notified
 
-For every new listing, the `marktplaats_new_listing` event fires, with in `event_data`:
-`entry_id`, `query`, `item_id`, `title`, `price_cents`, `price_type`, `url`, `location`,
-`image_url`. Build an automation on this with a `notify` action to your phone.
+There are two ways, from simple to flexible:
+
+1. **Built in, no automation needed.** When (re)configuring a search, fill in a
+   **notify service name** (e.g. `mobile_app_phone` - found under **Developer
+   Tools > Actions**, search for "notify"; the part after the dot is the
+   service name; a full `notify.xxx` also works, the `notify.` prefix is
+   stripped automatically). The integration then sends a notification itself
+   for every new listing, with title, price, location, link, and photo.
+   **Note:** this must be a classic, per-target notify service (like the one
+   the HA Companion App registers), not a notify entity - the modern,
+   entity-based `notify.send_message` service no longer supports a photo
+   attachment since Home Assistant's notify-entity redesign (empirically
+   verified; see [`ROADMAP.md`](ROADMAP.md) for the technical explanation).
+   If the configured service stops working, it's only logged as a warning -
+   the sensor and the event below keep working regardless.
+2. **Build your own automation**, for full control. For every new listing, the
+   `marktplaats_new_listing` event fires, with in `event_data`: `entry_id`,
+   `query`, `item_id`, `title`, `price_cents`, `price_type`, `url`,
+   `location`, `image_url`. Optionally use the ready-made blueprint
+   [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
+   it lets you pick any notification action yourself (including a modern
+   notify entity) and pre-computes title/price/location for you. Click the
+   blueprint badge at the top of this file to import it directly.
 
 Each search also gets a sensor (`sensor.<name>_listings`) whose state is the number of
 currently matching listings, with attributes for the number of new listings in the last
