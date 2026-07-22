@@ -6,6 +6,7 @@ A Home Assistant integration for structurally searching for items or services on
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
 
 **Status: installeerbaar als HACS custom repository; aanmelding bij de standaard HACS-store staat in de reviewwachtrij. Zie [`ROADMAP.md`](ROADMAP.md) voor de volledige planning.**
+
 **Status: installable as a HACS custom repository; submission to the default HACS store is in the review queue. See [`ROADMAP.md`](ROADMAP.md) for the full plan.**
 
 ## NL
