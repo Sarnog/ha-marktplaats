@@ -89,15 +89,23 @@ Er zijn twee manieren, van simpel naar flexibel:
    toelichting). Werkt de opgegeven service niet (meer), dan wordt dat alleen
    als waarschuwing gelogd - de sensor en het event hieronder blijven gewoon
    werken.
-2. **Zelf een automation bouwen**, voor volledige controle. Voor elke nieuwe
+2. **Kant-en-klare blueprint**, voor wie een andere notify-actie of meer controle
+   wil. [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
+   klik de blueprint-badge bovenaan dit bestand om 'm te importeren. Je geeft
+   alleen aan **welke actie** de melding moet versturen; titel, prijs, locatie,
+   link (en bij een script ook de foto) worden automatisch ingevuld, geen
+   sjablonen zelf typen nodig:
+   - Een **notify-actie** (bv. `notify.mobile_app_telefoon`) - titel en bericht
+     worden ingevuld, geen foto (zelfde reden als hierboven bij optie 1: de
+     moderne notify-entity-service ondersteunt geen foto-bijlage).
+   - Een **eigen script** (bv. `script.stuur_notificatie`) - het script krijgt
+     `title`, `message`, `price`, `location`, `url` en `image_url` als
+     variabelen mee, zodat je daar zelf (met foto) een melding mee kunt bouwen.
+   - Optioneel te beperken tot één specifieke zoekopdracht.
+3. **Zelf een automation bouwen**, voor volledige controle. Voor elke nieuwe
    advertentie wordt het event `marktplaats_new_listing` gevuurd, met in
    `event_data`: `entry_id`, `query`, `item_id`, `title`, `price_cents`,
-   `price_type`, `url`, `location`, `image_url`. Gebruik hiervoor eventueel de
-   kant-en-klare blueprint
-   [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
-   die laat je zelf een willekeurige melding-actie kiezen (dus ook een
-   moderne notify-entity) en rekent titel/prijs/locatie alvast voor je uit.
-   Klik de blueprint-badge bovenaan dit bestand om 'm direct te importeren.
+   `price_type`, `url`, `location`, `image_url`.
 
 Daarnaast krijgt elke zoekopdracht een sensor (`sensor.<naam>_advertenties`) met als
 waarde het aantal momenteel matchende advertenties, en als attributen het aantal nieuwe
@@ -235,14 +243,23 @@ There are two ways, from simple to flexible:
    verified; see [`ROADMAP.md`](ROADMAP.md) for the technical explanation).
    If the configured service stops working, it's only logged as a warning -
    the sensor and the event below keep working regardless.
-2. **Build your own automation**, for full control. For every new listing, the
+2. **Ready-made blueprint**, for a different notify action or more control.
+   [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
+   click the blueprint badge at the top of this file to import it. You only
+   specify **which action** should send the notification; title, price,
+   location, link (and, for a script, the photo) are filled in automatically -
+   no templates to write yourself:
+   - A **notify action** (e.g. `notify.mobile_app_phone`) - title and message
+     are filled in, no photo (same reason as option 1 above: the modern
+     notify-entity service doesn't support a photo attachment).
+   - Your **own script** (e.g. `script.send_notification`) - the script
+     receives `title`, `message`, `price`, `location`, `url`, and `image_url`
+     as variables, so you can build your own notification with a photo there.
+   - Optionally restrict it to a single search.
+3. **Build your own automation**, for full control. For every new listing, the
    `marktplaats_new_listing` event fires, with in `event_data`: `entry_id`,
    `query`, `item_id`, `title`, `price_cents`, `price_type`, `url`,
-   `location`, `image_url`. Optionally use the ready-made blueprint
-   [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
-   it lets you pick any notification action yourself (including a modern
-   notify entity) and pre-computes title/price/location for you. Click the
-   blueprint badge at the top of this file to import it directly.
+   `location`, `image_url`.
 
 Each search also gets a sensor (`sensor.<name>_listings`) whose state is the number of
 currently matching listings, with attributes for the number of new listings in the last
