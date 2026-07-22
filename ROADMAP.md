@@ -151,6 +151,18 @@ app"-actie in plaats van volledige automatisering. Zie de "Bekende risico's" in
   "Gepland - direct gevraagd door de gebruiker" voor de belangrijke technische
   bevinding (de moderne notify-entity-service ondersteunt geen foto-bijlage) die de
   aanpak bepaald heeft.
+- **v0.2.1** - aanvulling op v0.2.0: kant-en-klare automation-blueprint
+  (`blueprints/automation/marktplaats/new_listing_notify.yaml`) met een import-badge
+  bovenaan de README, plus uitleg over `notify_service` in de README zelf (stond er
+  nog niet). Tijdens de actieve bug-review vóór deze release zijn twee echte bugs in
+  de blueprint gevonden en gefixt: (1) een YAML-gevouwen (`>-`) meerregelig
+  `{% if %}`/`{% endif %}`-blok voegde spaties toe als letterlijke tekst tussen de
+  tags, waardoor de prijstekst met overtollige spaties gerenderd werd - opgelost door
+  het als één samenhangende Jinja-expressie te schrijven, ongevoelig voor line-folding;
+  (2) een ontbrekende locatie (`None`, geen lege string) werd letterlijk als de tekst
+  "None" in de melding getoond - opgelost met een truthy `select`-filter i.p.v. een
+  `!= ''`-check. Beide zijn gevonden door de daadwerkelijke, YAML-gevouwen templates
+  met Jinja2 en testdata te renderen, niet door er alleen over te redeneren.
 
 ## EN
 
@@ -295,3 +307,15 @@ action rather than full automation. See "Known risks" in [`README.md`](README.md
   classic, per-target notify service (e.g. `mobile_app_phone`). See "Planned - directly
   requested by the user" above for the important technical finding (the modern
   notify-entity service doesn't support a photo attachment) that shaped this approach.
+- **v0.2.1** - addition to v0.2.0: a ready-made automation blueprint
+  (`blueprints/automation/marktplaats/new_listing_notify.yaml`) with an import badge
+  at the top of the README, plus an explanation of `notify_service` in the README
+  itself (it wasn't there yet). The active bug review before this release found and
+  fixed two real bugs in the blueprint: (1) a YAML-folded (`>-`) multi-line
+  `{% if %}`/`{% endif %}` block was inserting spaces as literal text between the
+  tags, so the price text rendered with stray whitespace - fixed by rewriting it as
+  one contiguous Jinja expression, which is immune to line-folding; (2) a missing
+  location (`None`, not an empty string) rendered as the literal text "None" in the
+  notification - fixed with a truthy `select` filter instead of a `!= ''` check. Both
+  were found by rendering the actual, YAML-folded templates with Jinja2 and test
+  data, not by reasoning about them in the abstract.
