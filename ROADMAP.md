@@ -81,6 +81,23 @@ servicecall zelf is - net als de rest van de coordinator - alleen handmatig
 te verifiëren in een echte Home Assistant-instantie (zie
 [`tests/README.md`](tests/README.md)).
 
+**Optie 2 - gebouwd.**
+[`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml),
+met een import-badge in de README. Trigger op `marktplaats_new_listing`, met
+een `config_entry`-input om optioneel tot één zoekopdracht te beperken en een
+`action`-input waarin de gebruiker zélf een willekeurige melding-actie kiest
+(dus ook een moderne notify-entity - de blueprint heeft niet de beperking van
+optie 1, omdat de gebruiker zelf verantwoordelijk is voor wat die actie wel of
+niet ondersteunt). Rekent twee sjabloonvariabelen voor: `listing_price_text`
+(bv. "€ 19,99") en `listing_subtitle` (prijs + locatie samengevoegd).
+Gevalideerd tegen HA's eigen `Blueprint`/`BlueprintInputs`-schema's (metadata,
+input-substitutie) en de Jinja-templates apart gerenderd met kale Jinja2 en
+mock-data om de logica te controleren; de diepere `cv.template`-compilatie
+zelf vereist een draaiende `hass`-event-loop en kon dus niet lokaal
+gevalideerd worden (dezelfde bekende beperking als de rest van deze repo) -
+test dit dus ook zelf door de blueprint te importeren in een echte
+Home Assistant-instantie.
+
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
 - **HA Repair issue bij herhaalde blokkades.** Stond al in het allereerste ontwerp
@@ -211,6 +228,22 @@ sensor/event keep working regardless). Pure logic (`_build_notify_payload`,
 `_format_price`, `_normalize_notify_service`) is covered by tests; the actual service
 call itself - like the rest of the coordinator - can only be verified manually on a
 real Home Assistant instance (see [`tests/README.md`](tests/README.md)).
+
+**Option 2 - built.**
+[`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml),
+with an import badge in the README. Triggers on `marktplaats_new_listing`, with a
+`config_entry` input to optionally restrict it to a single search and an `action` input
+where the user picks any notification action themselves (including a modern notify
+entity - the blueprint doesn't have option 1's limitation, since the user is responsible
+for whatever that action does or doesn't support). Pre-computes two template variables:
+`listing_price_text` (e.g. "€ 19,99" - Dutch decimal comma, matching the rest of
+this integration) and `listing_subtitle` (price + location
+combined). Validated against HA's own `Blueprint`/`BlueprintInputs` schemas (metadata,
+input substitution) and the Jinja templates were separately rendered with plain Jinja2
+and mock data to check the logic; the deeper `cv.template` compilation itself requires a
+running `hass` event loop and couldn't be validated locally (the same known limitation
+as the rest of this repo) - so also test this yourself by importing the blueprint into a
+real Home Assistant instance.
 
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
