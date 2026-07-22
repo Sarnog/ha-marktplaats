@@ -81,9 +81,14 @@ een dashboard.
   database zonder toestemming; ze blokkeren bekende scrapers op IP-niveau. Daarom een
   hard minimum van 15 minuten tussen zoekopdrachten, ook als je een lagere waarde
   invult.
-- Marktplaats retourneert maximaal de 30 nieuwste advertenties per zoekopdracht; bij een
-  zeer brede zoekterm en een lange tijd zonder poll (HA uit geweest, netwerkstoring)
-  kunnen advertenties tussen de 30 nieuwste "doorheen glippen" zonder melding.
+- Marktplaats retourneert maximaal de 30 nieuwste advertenties per zoekopdracht (de
+  sensorwaarde zelf toont wel het echte totaal aantal treffers, dat is niet afgekapt);
+  bij een zeer brede zoekterm en een lange tijd zonder poll (HA uit geweest,
+  netwerkstoring) kunnen advertenties tussen de 30 nieuwste "doorheen glippen" zonder
+  melding.
+- Advertenties verschijnen en verdwijnen continu op Marktplaats - het aantal treffers
+  kan dus al bij de volgende poll weer anders zijn, ook al is er niets aan je
+  zoekopdracht veranderd.
 - De locatie-fallback gebruikt OpenStreetMap Nominatim (gratis, geen API-key) om
   lat/lon om te zetten naar een postcode; dit gebeurt alleen bij het instellen/
   herconfigureren van een zoekopdracht, niet bij elke poll.
@@ -187,9 +192,12 @@ poll plus the latest few new listings - handy for a dashboard.
 - Marktplaats' terms of use prohibit systematic/repeated querying of their database
   without permission; they IP-block known scrapers. Hence a hard 15-minute minimum
   between searches, even if you configure a lower value.
-- Marktplaats returns at most the 30 newest listings per search; with a very broad
+- Marktplaats returns at most the 30 newest listings per search (the sensor's state
+  itself shows the real total match count, that isn't capped); with a very broad
   search term and a long gap without polling (HA down, network outage), listings beyond
   the newest 30 can slip through without a notification.
+- Listings on Marktplaats constantly appear and disappear - the match count can
+  legitimately differ from one poll to the next even if your search hasn't changed.
 - The location fallback uses OpenStreetMap Nominatim (free, no API key) to resolve
   lat/lon to a postcode; this only happens when setting up/reconfiguring a search, not
   on every poll.
