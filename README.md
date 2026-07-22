@@ -1,3 +1,5 @@
+  <a href="#nl">NL</a> | <a href="#en">EN</a>
+
 <div align="center">
   <!-- align="center" centreert alles binnen deze div -->
   <h1>
