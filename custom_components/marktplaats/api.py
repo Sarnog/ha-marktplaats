@@ -89,12 +89,20 @@ async def fetch_listings(
     condition: str | None = None,
     l1_category_id: int | None = None,
     l2_category_id: int | None = None,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], int]:
     """Haalt actuele advertenties op die aan de zoekopdracht voldoen.
 
     Let op: Marktplaats' zoek-API filtert alleen daadwerkelijk op afstand als
     een postcode wordt meegegeven; lat/lon-parameters worden genegeerd (dit is
     empirisch geverifieerd tijdens de PoC-fase). `postcode` is dus verplicht.
+
+    Geeft `(listings, total_result_count)` terug. `listings` bevat maximaal
+    `limit` items (de nieuwste eerst), maar `total_result_count` is het
+    werkelijke totaal aantal treffers - empirisch geverifieerd dat dit veld
+    onafhankelijk is van `limit` (getest met limit=1 t/m 100 op een query met
+    duizenden treffers). Gebruik dus `total_result_count` voor een getoond
+    "aantal advertenties", niet `len(listings)`, anders wordt dat bij een
+    brede zoekterm ernstig te laag weergegeven (afgekapt op `limit`).
     """
     params = build_search_params(
         query,
@@ -115,7 +123,9 @@ async def fetch_listings(
         msg = f"Kon geen verbinding maken met Marktplaats: {err}"
         raise MarktplaatsApiError(msg) from err
 
-    return body.get("listings", [])
+    listings = body.get("listings", [])
+    total_result_count = body.get("totalResultCount", len(listings))
+    return listings, total_result_count
 
 
 async def resolve_postcode_from_latlon(

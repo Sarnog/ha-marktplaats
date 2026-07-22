@@ -115,12 +115,58 @@ def test_build_search_params_categories() -> None:
 async def test_fetch_listings_returns_parsed_listings() -> None:
     session = _mock_session_get(
         API_URL,
-        _FakeResponse(json_data={"listings": [{"itemId": "m123", "title": "Een televisie"}]}),
+        _FakeResponse(
+            json_data={
+                "listings": [{"itemId": "m123", "title": "Een televisie"}],
+                "totalResultCount": 1,
+            }
+        ),
     )
 
-    listings = await api.fetch_listings(session, "televisie", "1012JS", 25, limit=30)
+    listings, total_result_count = await api.fetch_listings(
+        session, "televisie", "1012JS", 25, limit=30
+    )
 
     assert listings == [{"itemId": "m123", "title": "Een televisie"}]
+    assert total_result_count == 1
+
+
+@pytest.mark.asyncio
+async def test_fetch_listings_total_result_count_is_not_capped_by_len_listings() -> None:
+    # Marktplaats always returns at most `limit` listings, but totalResultCount
+    # reflects the real total - empirically verified live with limit=1..100 on
+    # a query with thousands of matches. A regression here (e.g. accidentally
+    # using len(listings) again) would silently under-report popular searches.
+    session = _mock_session_get(
+        API_URL,
+        _FakeResponse(
+            json_data={
+                "listings": [{"itemId": "m1"}, {"itemId": "m2"}],
+                "totalResultCount": 2698,
+            }
+        ),
+    )
+
+    listings, total_result_count = await api.fetch_listings(
+        session, "televisie", "1012JS", 25, limit=2
+    )
+
+    assert len(listings) == 2
+    assert total_result_count == 2698
+
+
+@pytest.mark.asyncio
+async def test_fetch_listings_missing_total_result_count_falls_back_to_len_listings() -> None:
+    session = _mock_session_get(
+        API_URL,
+        _FakeResponse(json_data={"listings": [{"itemId": "m1"}, {"itemId": "m2"}]}),
+    )
+
+    listings, total_result_count = await api.fetch_listings(
+        session, "televisie", "1012JS", 25, limit=30
+    )
+
+    assert total_result_count == len(listings) == 2
 
 
 @pytest.mark.asyncio

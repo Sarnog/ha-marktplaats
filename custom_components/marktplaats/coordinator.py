@@ -38,6 +38,9 @@ type MarktplaatsConfigEntry = ConfigEntry["MarktplaatsCoordinator"]
 class MarktplaatsData:
     """Resultaat van een enkele pollronde."""
 
+    # Marktplaats' eigen totalResultCount, NIET len(all_listings) - dat laatste
+    # is altijd afgekapt op SEARCH_RESULT_LIMIT en zou het werkelijke aantal
+    # bij een brede zoekterm ernstig te laag weergeven.
     total_count: int
     new_listings: list[dict[str, Any]] = field(default_factory=list)
     all_listings: list[dict[str, Any]] = field(default_factory=list)
@@ -90,7 +93,7 @@ class MarktplaatsCoordinator(DataUpdateCoordinator[MarktplaatsData]):
 
         entry_data = self.entry.data
         try:
-            listings = await api.fetch_listings(
+            listings, total_result_count = await api.fetch_listings(
                 self._session,
                 entry_data[CONF_QUERY],
                 entry_data[CONF_POSTCODE],
@@ -134,7 +137,7 @@ class MarktplaatsCoordinator(DataUpdateCoordinator[MarktplaatsData]):
         await self._store.async_save(sorted(seen_ids))
 
         return MarktplaatsData(
-            total_count=len(listings),
+            total_count=total_result_count,
             new_listings=new_listings,
             all_listings=listings,
         )
