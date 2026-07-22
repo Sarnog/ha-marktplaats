@@ -81,22 +81,46 @@ servicecall zelf is - net als de rest van de coordinator - alleen handmatig
 te verifiëren in een echte Home Assistant-instantie (zie
 [`tests/README.md`](tests/README.md)).
 
-**Optie 2 - gebouwd.**
+**Optie 2 - gebouwd, herontworpen na gebruikersfeedback (v0.2.2).**
 [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml),
 met een import-badge in de README. Trigger op `marktplaats_new_listing`, met
-een `config_entry`-input om optioneel tot één zoekopdracht te beperken en een
-`action`-input waarin de gebruiker zélf een willekeurige melding-actie kiest
-(dus ook een moderne notify-entity - de blueprint heeft niet de beperking van
-optie 1, omdat de gebruiker zelf verantwoordelijk is voor wat die actie wel of
-niet ondersteunt). Rekent twee sjabloonvariabelen voor: `listing_price_text`
-(bv. "€ 19,99") en `listing_subtitle` (prijs + locatie samengevoegd).
+een `config_entry`-input om optioneel tot één zoekopdracht te beperken.
+
+**Eerste versie (v0.2.1) gebruikte een `action`-input** (ActionSelector) waarin
+de gebruiker zélf een willekeurige melding-actie configureerde. Bleek in de
+praktijk niet te werken zoals de beschrijving beloofde: de door de gebruiker
+gekozen actie (bv. "Stuur melding" naar `notify.mobile_app_xxx`) kwam met een
+lege berichttekst binnen, omdat de blueprint geen controle heeft over de
+inhoud van een actie die de gebruiker zelf via de UI configureert - je zou
+zelf een Jinja-sjabloon in dat actie-veld moeten typen, wat het doel van de
+blueprint (niets hoeven typen) tenietdeed.
+
+**Herontworpen (v0.2.2) met een `entity`-input** (domeinen `notify` + `script`)
+i.p.v. een `action`-input: de gebruiker geeft alleen áán welke actie/entity de
+melding moet versturen, de blueprint bouwt de daadwerkelijke servicecall zelf,
+met titel/bericht/foto al ingevuld:
+
+- **notify-doel** (bv. `notify.mobile_app_telefoon`) → `notify.send_message`
+  met titel en bericht; geen foto (zelfde HA-beperking als optie 1: de
+  entity-gebaseerde service ondersteunt geen `data`-veld).
+- **script-doel** (bv. `script.stuur_notificatie`) → `script.turn_on` met
+  `variables: {title, message, price, location, url, image_url}` - een
+  officieel ondersteund HA-mechanisme om willekeurige data in een eigen script
+  te injecteren (`ATTR_VARIABLES`, gevalideerd tegen `SCRIPT_TURN_ONOFF_SCHEMA`).
+  Zo kán een foto wél meegestuurd worden, via het eigen script van de
+  gebruiker.
+
+Rekent drie sjabloonvariabelen voor: `listing_price_text` (bv. "€ 19,99"),
+`listing_subtitle` (prijs + locatie) en `listing_message` (subtitle + link).
 Gevalideerd tegen HA's eigen `Blueprint`/`BlueprintInputs`-schema's (metadata,
-input-substitutie) en de Jinja-templates apart gerenderd met kale Jinja2 en
-mock-data om de logica te controleren; de diepere `cv.template`-compilatie
-zelf vereist een draaiende `hass`-event-loop en kon dus niet lokaal
-gevalideerd worden (dezelfde bekende beperking als de rest van deze repo) -
-test dit dus ook zelf door de blueprint te importeren in een echte
-Home Assistant-instantie.
+input-substitutie voor zowel een notify- als een script-doel) en alle
+Jinja-templates apart gerenderd met kale Jinja2 tegen de daadwerkelijke,
+YAML-gevouwen tekst (niet een met de hand overgetypte kopie - zie de
+v0.2.1-les hieronder) met meerdere testgevallen (mét/zonder prijs, mét/zonder
+locatie, notify- vs. script-doel). De diepere `cv.template`-compilatie zelf
+vereist een draaiende `hass`-event-loop en kon dus niet lokaal gevalideerd
+worden (dezelfde bekende beperking als de rest van deze repo) - test dit dus
+ook zelf door de blueprint te importeren in een echte Home Assistant-instantie.
 
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
@@ -163,6 +187,19 @@ app"-actie in plaats van volledige automatisering. Zie de "Bekende risico's" in
   "None" in de melding getoond - opgelost met een truthy `select`-filter i.p.v. een
   `!= ''`-check. Beide zijn gevonden door de daadwerkelijke, YAML-gevouwen templates
   met Jinja2 en testdata te renderen, niet door er alleen over te redeneren.
+- **v0.2.2** - fix: de v0.2.1-blueprint werkte in de praktijk niet zoals beloofd - de
+  door de gebruiker zelf gekozen melding-actie kwam met een lege berichttekst binnen,
+  omdat een `action`-input de gebruiker zelf verantwoordelijk maakt voor het invullen
+  van sjablonen, wat nergens werd afgedwongen. Herontworpen met een `entity`-input
+  (notify- of script-doel): de blueprint bouwt nu zelf de servicecall, waarbij titel,
+  bericht, prijs en locatie automatisch worden ingevuld (`notify.send_message` voor
+  een notify-doel; `script.turn_on` met `variables` voor een eigen script, wat ook een
+  foto mogelijk maakt). README bijgewerkt om het nieuwe gedrag correct te beschrijven.
+  Daarnaast de README-lay-out overgenomen van de eigen wijzigingen die de gebruiker op
+  GitHub aanbracht: gecentreerde titel, NL/EN-navigatielinks bovenaan, badges en
+  status-regel nu per taal herhaald, `---`-scheidingslijn tussen de secties -
+  vastgelegd in het algemene geheugen om bij alle (toekomstige) integraties toe te
+  passen.
 
 ## EN
 
@@ -241,21 +278,44 @@ sensor/event keep working regardless). Pure logic (`_build_notify_payload`,
 call itself - like the rest of the coordinator - can only be verified manually on a
 real Home Assistant instance (see [`tests/README.md`](tests/README.md)).
 
-**Option 2 - built.**
+**Option 2 - built, redesigned after user feedback (v0.2.2).**
 [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml),
 with an import badge in the README. Triggers on `marktplaats_new_listing`, with a
-`config_entry` input to optionally restrict it to a single search and an `action` input
-where the user picks any notification action themselves (including a modern notify
-entity - the blueprint doesn't have option 1's limitation, since the user is responsible
-for whatever that action does or doesn't support). Pre-computes two template variables:
-`listing_price_text` (e.g. "€ 19,99" - Dutch decimal comma, matching the rest of
-this integration) and `listing_subtitle` (price + location
-combined). Validated against HA's own `Blueprint`/`BlueprintInputs` schemas (metadata,
-input substitution) and the Jinja templates were separately rendered with plain Jinja2
-and mock data to check the logic; the deeper `cv.template` compilation itself requires a
-running `hass` event loop and couldn't be validated locally (the same known limitation
-as the rest of this repo) - so also test this yourself by importing the blueprint into a
-real Home Assistant instance.
+`config_entry` input to optionally restrict it to a single search.
+
+**First version (v0.2.1) used an `action` input** (ActionSelector) where the user
+configured any notification action themselves. Turned out not to work as the
+description promised: the action the user picked (e.g. "Send a notification" to
+`notify.mobile_app_xxx`) arrived with an empty message, because the blueprint has no
+control over the content of an action the user configures themselves through the UI -
+you'd have to type a Jinja template into that action's field yourself, which defeated
+the blueprint's whole point (nothing to type).
+
+**Redesigned (v0.2.2) with an `entity` input** (domains `notify` + `script`) instead of
+an `action` input: the user only specifies which action/entity should send the
+notification, and the blueprint builds the actual service call itself, with
+title/message/photo already filled in:
+
+- **notify target** (e.g. `notify.mobile_app_phone`) → `notify.send_message` with title
+  and message; no photo (same HA limitation as option 1: the entity-based service
+  doesn't support a `data` field).
+- **script target** (e.g. `script.send_notification`) → `script.turn_on` with
+  `variables: {title, message, price, location, url, image_url}` - an officially
+  supported HA mechanism for injecting arbitrary data into a user's own script
+  (`ATTR_VARIABLES`, validated against `SCRIPT_TURN_ONOFF_SCHEMA`). This does let a
+  photo be sent, via the user's own script.
+
+Pre-computes three template variables: `listing_price_text` (e.g. "€ 19,99" - Dutch
+decimal comma, matching the rest of this integration), `listing_subtitle` (price +
+location), and `listing_message` (subtitle + link). Validated against HA's own
+`Blueprint`/`BlueprintInputs` schemas (metadata, input substitution for both a notify
+and a script target) and every Jinja template was separately rendered with plain
+Jinja2 against the actual, YAML-folded text (not a hand-retyped copy - see the v0.2.1
+lesson below) across several cases (with/without price, with/without location, notify
+vs. script target). The deeper `cv.template` compilation itself requires a running
+`hass` event loop and couldn't be validated locally (the same known limitation as the
+rest of this repo) - so also test this yourself by importing the blueprint into a real
+Home Assistant instance.
 
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
@@ -319,3 +379,15 @@ action rather than full automation. See "Known risks" in [`README.md`](README.md
   notification - fixed with a truthy `select` filter instead of a `!= ''` check. Both
   were found by rendering the actual, YAML-folded templates with Jinja2 and test
   data, not by reasoning about them in the abstract.
+- **v0.2.2** - fix: the v0.2.1 blueprint didn't actually work as promised - the
+  notification action the user picked themselves arrived with an empty message body,
+  because an `action` input makes the user responsible for filling in templates
+  themselves, which nothing enforced. Redesigned with an `entity` input (notify or
+  script target): the blueprint now builds the service call itself with title,
+  message, price, and location filled in automatically (`notify.send_message` for a
+  notify target; `script.turn_on` with `variables` for a user's own script, which also
+  makes a photo possible). README updated to correctly describe the new behavior.
+  Also adopted the README layout from the user's own GitHub edits: centered title,
+  NL/EN nav links at the top, badges and status line now repeated per language, an
+  `---` divider between the sections - saved to general memory to apply to all
+  (future) integrations.
