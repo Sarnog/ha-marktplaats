@@ -7,8 +7,10 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Any
 
+import homeassistant.components.notify as notify
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -20,6 +22,7 @@ from .const import (
     CONF_L2_CATEGORY_ID,
     CONF_MAX_PRICE,
     CONF_MIN_PRICE,
+    CONF_NOTIFY_SERVICE,
     CONF_POSTCODE,
     CONF_QUERY,
     CONF_RADIUS_KM,
@@ -52,6 +55,34 @@ def _first_image_url(item: dict[str, Any]) -> str | None:
         return None
     url = image_urls[0]
     return f"https:{url}" if url.startswith("//") else url
+
+
+def _format_price(item: dict[str, Any]) -> str | None:
+    # priceType (bv. "SEE_DESCRIPTION", "ON_REQUEST") is nooit empirisch
+    # geverifieerd als vaste enum-lijst (zie const.py's CONDITIONS-commentaar
+    # voor wat hier wel geverifieerd is), dus alleen de wel-geverifieerde
+    # priceCents wordt getoond - liever geen prijs dan een geraden label.
+    price_cents = item.get("priceInfo", {}).get("priceCents")
+    if price_cents is None:
+        return None
+    return f"€ {price_cents / 100:.2f}".replace(".", ",")
+
+
+def _build_notify_payload(item: dict[str, Any]) -> dict[str, Any]:
+    """Bouwt de payload voor een klassieke notify-service uit een advertentie."""
+    price = _format_price(item)
+    location = item.get("location", {}).get("cityName")
+    subtitle = " · ".join(part for part in (price, location) if part)
+    url = f"https://link.marktplaats.nl/{item.get('itemId')}"
+
+    payload: dict[str, Any] = {
+        notify.ATTR_TITLE: item.get("title"),
+        notify.ATTR_MESSAGE: "\n".join(line for line in (subtitle, url) if line),
+    }
+    image_url = _first_image_url(item)
+    if image_url:
+        payload[notify.ATTR_DATA] = {"image": image_url}
+    return payload
 
 
 class MarktplaatsCoordinator(DataUpdateCoordinator[MarktplaatsData]):
@@ -116,6 +147,7 @@ class MarktplaatsCoordinator(DataUpdateCoordinator[MarktplaatsData]):
         else:
             new_listings = [item for item in listings if item.get("itemId") not in seen_ids]
 
+        notify_service = entry_data.get(CONF_NOTIFY_SERVICE)
         for item in new_listings:
             price_info = item.get("priceInfo", {})
             self.hass.bus.async_fire(
@@ -132,6 +164,8 @@ class MarktplaatsCoordinator(DataUpdateCoordinator[MarktplaatsData]):
                     "image_url": _first_image_url(item),
                 },
             )
+            if notify_service:
+                await self._async_notify(notify_service, item)
 
         seen_ids.update(item["itemId"] for item in listings if item.get("itemId") is not None)
         await self._store.async_save(sorted(seen_ids))
@@ -141,3 +175,30 @@ class MarktplaatsCoordinator(DataUpdateCoordinator[MarktplaatsData]):
             new_listings=new_listings,
             all_listings=listings,
         )
+
+    async def _async_notify(self, service_name: str, item: dict[str, Any]) -> None:
+        """Stuurt een pushmelding voor één nieuwe advertentie.
+
+        Roept bewust de klassieke, per-doel notify-service aan (bv.
+        "mobile_app_telefoon") in plaats van de moderne entity-gebaseerde
+        notify.send_message - alleen die klassieke variant accepteert nog een
+        "data"-veld, nodig om de foto als bijlage mee te sturen (zie
+        CONF_NOTIFY_SERVICE in const.py). Fouten (bv. een niet-bestaande of
+        inmiddels verwijderde service) worden alleen gelogd, niet
+        doorgegeven - een mislukte melding mag de poll zelf niet laten
+        mislukken (de sensor/het event zijn dan nog steeds bijgewerkt).
+        """
+        try:
+            await self.hass.services.async_call(
+                notify.DOMAIN,
+                service_name,
+                _build_notify_payload(item),
+                blocking=True,
+            )
+        except HomeAssistantError as err:
+            _LOGGER.warning(
+                "Kon geen melding sturen via notify.%s voor advertentie %s: %s",
+                service_name,
+                item.get("itemId"),
+                err,
+            )

@@ -20,6 +20,7 @@ from .const import (
     CONF_L2_CATEGORY_ID,
     CONF_MAX_PRICE,
     CONF_MIN_PRICE,
+    CONF_NOTIFY_SERVICE,
     CONF_POSTCODE,
     CONF_QUERY,
     CONF_RADIUS_KM,
@@ -59,6 +60,7 @@ DATA_SCHEMA = vol.Schema(
         vol.Optional(CONF_SCAN_INTERVAL_MINUTES, default=DEFAULT_SCAN_INTERVAL_MINUTES): vol.All(
             vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL_MINUTES)
         ),
+        vol.Optional(CONF_NOTIFY_SERVICE): str,
     }
 )
 
@@ -78,6 +80,13 @@ def _build_unique_id(data: dict[str, Any]) -> str:
         str(data.get(CONF_L2_CATEGORY_ID)),
     ]
     return "|".join(parts)
+
+
+def _normalize_notify_service(value: str) -> str:
+    """Verdraagt de veelgemaakte fout om de volledige "notify.xxx" in te
+    vullen i.p.v. alleen de servicenaam die hass.services.async_call
+    verwacht."""
+    return value.strip().removeprefix("notify.")
 
 
 async def _async_reset_seen_listings(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -101,6 +110,9 @@ class MarktplaatsConfigFlow(ConfigFlow, domain=DOMAIN):
         """Vult data aan (postcode-resolutie) en test de zoekopdracht live."""
         data = {k: v for k, v in user_input.items() if k != CONF_NAME}
         session = async_get_clientsession(self.hass)
+
+        if notify_service := data.get(CONF_NOTIFY_SERVICE):
+            data[CONF_NOTIFY_SERVICE] = _normalize_notify_service(notify_service)
 
         postcode = data.get(CONF_POSTCODE) or ""
         if not postcode:
