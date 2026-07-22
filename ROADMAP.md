@@ -56,6 +56,31 @@ Voorstel: begin met optie 1 als hoofdfunctionaliteit (lost de vraag rechtstreeks
 daarna optie 2 als aanvulling voor gevorderde gebruikers, optie 3 alleen als er
 concrete dashboard-behoefte blijkt.
 
+**Optie 1 - gebouwd, wacht op verificatie in een echte HA-instantie.** Nieuw
+optioneel veld `notify_service` in de config flow: een klassieke, per-doel
+notify-servicenaam (bv. `mobile_app_telefoon`, geen `notify.`-prefix nodig -
+die wordt automatisch gestript). De coordinator stuurt bij elke nieuwe
+advertentie een melding met titel, prijs, locatie, link en foto.
+
+**Belangrijke bevinding tijdens de bouw:** de moderne, entity-gebaseerde
+`notify.send_message`-service (aan te roepen via een notify-entity) accepteert
+sinds het HA-herontwerp naar notify-entities geen `data`-veld meer - empirisch
+geverifieerd tegen HA 2026.7.3 (`vol.Invalid: extra keys not allowed`), en ook
+bevestigd in mobile_app's eigen `MobileAppNotifyEntity.async_send_message`,
+die letterlijk geen `data`-parameter heeft. Een foto-bijlage is daarmee alleen
+mogelijk via de **klassieke, per-doel notify-service** (zoals mobile_app die
+nog steeds registreert náást zijn entity, bv. `notify.mobile_app_telefoon`) -
+dat is dus bewust de aanpak geworden, ook al is dat de "oudere" stijl en
+minder toekomstbestendig dan een entity-selector. Werkt alleen voor
+notify-integraties die nog zo'n klassieke service registreren; voor
+entity-only notify-integraties komt er geen melding aan (wordt alleen gelogd
+als waarschuwing, de sensor/het event blijven gewoon werken).
+Pure logica (`_build_notify_payload`, `_format_price`,
+`_normalize_notify_service`) is gedekt door tests; de daadwerkelijke
+servicecall zelf is - net als de rest van de coordinator - alleen handmatig
+te verifiëren in een echte Home Assistant-instantie (zie
+[`tests/README.md`](tests/README.md)).
+
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
 - **HA Repair issue bij herhaalde blokkades.** Stond al in het allereerste ontwerp
@@ -158,6 +183,28 @@ preference:
 Proposal: start with option 1 as the main feature (directly solves the request), then
 option 2 as an add-on for advanced users, option 3 only if there's concrete dashboard
 demand.
+
+**Option 1 - built, awaiting verification on a real HA instance.** New optional
+`notify_service` field in the config flow: a classic, per-target notify service name
+(e.g. `mobile_app_phone`, no `notify.` prefix needed - it's stripped automatically).
+The coordinator sends a notification with title, price, location, link and photo for
+every new listing.
+
+**Important finding made while building this:** the modern, entity-based
+`notify.send_message` service (called through a notify entity) no longer accepts a
+`data` field since HA's redesign to notify entities - empirically verified against HA
+2026.7.3 (`vol.Invalid: extra keys not allowed`), and also confirmed in mobile_app's
+own `MobileAppNotifyEntity.async_send_message`, which literally has no `data`
+parameter. A photo attachment is therefore only possible via the **classic, per-target
+notify service** (the one mobile_app still registers alongside its entity, e.g.
+`notify.mobile_app_phone`) - so that's the deliberate approach taken here, even though
+it's the "older" style and less future-proof than an entity selector. Only works for
+notify integrations that still register such a classic service; entity-only notify
+integrations simply won't receive a notification (logged as a warning, the
+sensor/event keep working regardless). Pure logic (`_build_notify_payload`,
+`_format_price`, `_normalize_notify_service`) is covered by tests; the actual service
+call itself - like the rest of the coordinator - can only be verified manually on a
+real Home Assistant instance (see [`tests/README.md`](tests/README.md)).
 
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
