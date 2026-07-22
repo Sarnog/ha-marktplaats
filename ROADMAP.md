@@ -128,6 +128,12 @@ app"-actie in plaats van volledige automatisering. Zie de "Bekende risico's" in
   empirisch geverifieerd dat dit *niet* afgekapt wordt door de `limit`-parameter.
   Gevonden doordat de gebruiker een afwijkend aantal zag t.o.v. handmatig zoeken op
   marktplaats.nl.
+- **v0.2.0** - nieuw: optioneel `notify_service`-veld in de config flow - stuurt bij
+  elke nieuwe advertentie een pushmelding (titel, prijs, locatie, link, foto) via een
+  klassieke, per-doel notify-service (bv. `mobile_app_telefoon`). Zie hierboven onder
+  "Gepland - direct gevraagd door de gebruiker" voor de belangrijke technische
+  bevinding (de moderne notify-entity-service ondersteunt geen foto-bijlage) die de
+  aanpak bepaald heeft.
 
 ## EN
 
@@ -251,3 +257,8 @@ action rather than full automation. See "Known risks" in [`README.md`](README.md
   uses Marktplaats' own `totalResultCount` field from the API response, empirically
   verified to *not* be capped by the `limit` parameter. Found because the user saw a
   mismatched count compared to a manual search on marktplaats.nl.
+- **v0.2.0** - new: optional `notify_service` field in the config flow - sends a push
+  notification (title, price, location, link, photo) for every new listing via a
+  classic, per-target notify service (e.g. `mobile_app_phone`). See "Planned - directly
+  requested by the user" above for the important technical finding (the modern
+  notify-entity service doesn't support a photo attachment) that shaped this approach.
