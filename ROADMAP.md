@@ -117,10 +117,36 @@ input-substitutie voor zowel een notify- als een script-doel) en alle
 Jinja-templates apart gerenderd met kale Jinja2 tegen de daadwerkelijke,
 YAML-gevouwen tekst (niet een met de hand overgetypte kopie - zie de
 v0.2.1-les hieronder) met meerdere testgevallen (mét/zonder prijs, mét/zonder
-locatie, notify- vs. script-doel). De diepere `cv.template`-compilatie zelf
-vereist een draaiende `hass`-event-loop en kon dus niet lokaal gevalideerd
-worden (dezelfde bekende beperking als de rest van deze repo) - test dit dus
-ook zelf door de blueprint te importeren in een echte Home Assistant-instantie.
+locatie, notify- vs. script-doel).
+
+**v0.2.3 - fix: elke automation van deze blueprint kreeg dezelfde naam.**
+Home Assistant vraagt bij het opslaan van een blueprint-automation zelf niet
+actief om een naam - zonder een expliciet naamveld kregen alle automations
+van deze blueprint dus dezelfde weergavenaam (alleen de entiteit-ID kreeg
+een oplopend nummer). Gefixt met een nieuwe, verplichte `automation_name`-
+input (tekstveld) en een `alias: !input automation_name` op het hoogste
+niveau van de blueprint - empirisch geverifieerd dat dit de automation-naam
+daadwerkelijk zet, én dat een latere handmatige hernoeming door de gebruiker
+die naam correct blijft overschrijven (dus geen dwang-naam).
+
+**Testdekking uitgebreid: v0.2.1/v0.2.2's "kon niet lokaal gevalideerd
+worden"-beperking bleek deels op te lossen.** Een kale
+`homeassistant.core.HomeAssistant('.')`-instantie blijkt op dit
+Windows-ontwikkelsysteem prima te construeren (de Unix-only
+`fcntl`/`resource`-blokkade zit specifiek in `homeassistant.runner`, niet in
+de kale `HomeAssistant`-klasse). Met `homeassistant.loader.async_setup(hass)`
+plus het al doende bijvullen van een handvol lazy-geïnitialiseerde
+`hass.data`-caches (`triggers`, `trigger_platform_subscriptions`, e.d. - vang
+de `KeyError` en zet 'm op `{}`, convergeert in een paar iteraties) kan de
+*echte* `homeassistant.components.automation.config.async_validate_config_item`
+gedraaid worden, inclusief echte trigger-platformresolutie en echte
+`cv.template`-compilatie - niet meer alleen de structurele
+Blueprint/BlueprintInputs-aanpak van v0.2.1/v0.2.2. Hiermee is v0.2.3's
+naamfix voor zowel een notify- als een script-doel end-to-end bevestigd
+(`validation_error: None`). Blijft een goed idee om dit ook zelf te
+verifiëren in een echte Home Assistant-instantie, maar de "vereist een
+draaiende hass-event-loop en kon dus niet lokaal"-beperking uit eerdere
+versies is dus minder hard dan gedacht.
 
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
@@ -312,10 +338,33 @@ location), and `listing_message` (subtitle + link). Validated against HA's own
 and a script target) and every Jinja template was separately rendered with plain
 Jinja2 against the actual, YAML-folded text (not a hand-retyped copy - see the v0.2.1
 lesson below) across several cases (with/without price, with/without location, notify
-vs. script target). The deeper `cv.template` compilation itself requires a running
-`hass` event loop and couldn't be validated locally (the same known limitation as the
-rest of this repo) - so also test this yourself by importing the blueprint into a real
-Home Assistant instance.
+vs. script target).
+
+**v0.2.3 - fix: every automation created from this blueprint got the same name.**
+Home Assistant doesn't actually prompt for a name when you save a blueprint-based
+automation - without an explicit name field, every automation from this blueprint got
+the same display name (only the entity ID got an incrementing number). Fixed with a
+new, required `automation_name` input (text field) and a top-level
+`alias: !input automation_name` in the blueprint - empirically verified that this
+actually sets the automation's name, and that a later manual rename by the user still
+correctly overrides it (so it's not a forced, permanent name).
+
+**Test coverage expanded: the v0.2.1/v0.2.2 "couldn't be validated locally" limitation
+turned out to be partly solvable.** A bare `homeassistant.core.HomeAssistant('.')`
+instance turns out to construct fine on this Windows dev machine (the Unix-only
+`fcntl`/`resource` blocker is specifically in `homeassistant.runner`, not in the bare
+`HomeAssistant` class). With `homeassistant.loader.async_setup(hass)` plus seeding a
+handful of lazily-initialized `hass.data` caches on the fly (`triggers`,
+`trigger_platform_subscriptions`, etc. - catch the `KeyError` and set it to `{}`,
+converges within a few iterations), the *real*
+`homeassistant.components.automation.config.async_validate_config_item` can be run,
+including real trigger-platform resolution and real `cv.template` compilation - not
+just the structural Blueprint/BlueprintInputs approach used in v0.2.1/v0.2.2. This
+confirmed v0.2.3's naming fix end to end for both a notify and a script target
+(`validation_error: None`). Still worth verifying this yourself on a real Home
+Assistant instance too, but the "requires a running hass event loop and couldn't be
+validated locally" limitation from earlier versions is less hard than previously
+thought.
 
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
