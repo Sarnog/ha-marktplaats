@@ -32,6 +32,19 @@ Docker beschikbaar om dit te omzeilen.
   het geheugen aangenomen). Test dit gedrag in de praktijk door de integratie
   in een echte Home Assistant-instantie te installeren.
 
+**Update (2026-07-22):** de `pytest-homeassistant-custom-component`-blokkade
+zit specifiek in `homeassistant.runner`, niet in de kale
+`homeassistant.core.HomeAssistant`-klasse zelf - die construeert prima op
+Windows. Voor ad-hoc, diepere validatie (bv. van blueprints/automations,
+inclusief echte trigger-platformresolutie en `cv.template`-compilatie) is dit
+bruikbaar: `hass = HomeAssistant('.')`, dan `homeassistant.loader.async_setup(hass)`,
+en daarna eventuele `KeyError`s op ontbrekende `hass.data`-caches (bv.
+`triggers`) opvangen door ze op `{}` te zetten en opnieuw te proberen -
+convergeert in een paar iteraties. Zie `ROADMAP.md`'s v0.2.3-notitie voor een
+concreet voorbeeld. Dit is (nog) niet verweven in de `pytest`-suite zelf
+(zou een per-test `HomeAssistant()`-instantie plus dezelfde lazy-seeding
+vereisen) - voorlopig alleen gebruikt voor losse, gerichte verificatie.
+
 Als je dit project op Linux/macOS ontwikkelt (of via WSL), kun je wel de
 volledige `pytest-homeassistant-custom-component`-suite gebruiken voor
 config-flow- en coordinator-tests.
@@ -67,6 +80,19 @@ is available to work around it.
   `grep` against the installed package, not assumed from memory). Verify
   this behavior in practice by installing the integration on a real Home
   Assistant instance.
+
+**Update (2026-07-22):** the `pytest-homeassistant-custom-component` blocker
+is specifically in `homeassistant.runner`, not in the bare
+`homeassistant.core.HomeAssistant` class itself - that constructs fine on
+Windows. For ad-hoc, deeper validation (e.g. of blueprints/automations,
+including real trigger-platform resolution and `cv.template` compilation)
+this is usable: `hass = HomeAssistant('.')`, then
+`homeassistant.loader.async_setup(hass)`, then catch any `KeyError`s on
+missing `hass.data` caches (e.g. `triggers`) by setting them to `{}` and
+retrying - converges within a few iterations. See `ROADMAP.md`'s v0.2.3 note
+for a concrete example. This isn't (yet) wired into the `pytest` suite itself
+(would need a per-test `HomeAssistant()` instance plus the same lazy
+seeding) - for now it's only used for one-off, targeted verification.
 
 If you develop this project on Linux/macOS (or via WSL), you can use the
 full `pytest-homeassistant-custom-component` suite for config-flow and
