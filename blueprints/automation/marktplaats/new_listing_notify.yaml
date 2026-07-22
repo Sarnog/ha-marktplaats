@@ -1,0 +1,67 @@
+blueprint:
+  name: Marktplaats - melding bij nieuwe advertentie
+  description: >
+    Stuurt een melding zodra de Marktplaats-integratie een nieuwe, matchende
+    advertentie vindt (`marktplaats_new_listing`-event). Werkt met élke
+    actie die je zelf kiest - dus ook met moderne notify-entities - in
+    tegenstelling tot de ingebouwde `notify_service`-optie in de
+    integratie's eigen config flow, die alleen klassieke, per-doel
+    notify-services ondersteunt (zie ROADMAP.md in de integratie's repo voor
+    waarom).
+
+
+    Beschikbare gegevens uit de gebeurtenis (`trigger.event.data`): `title`,
+    `price_cents`, `price_type`, `location`, `url`, `image_url`, `item_id`,
+    `query`, `entry_id`. Deze blueprint berekent daar ook twee kant-en-klare
+    variabelen van die je in je eigen actie kunt gebruiken:
+    `{{ listing_price_text }}` (bv. "€ 19,99") en `{{ listing_subtitle }}`
+    (prijs en locatie samengevoegd, bv. "€ 19,99 · Utrecht").
+
+
+    Voorbeeld voor de melding-actie: kies "Melding versturen", vul als
+    titel `{{ trigger.event.data.title }}` in en als bericht
+    `{{ listing_subtitle }}\n{{ trigger.event.data.url }}`. Wil je de foto
+    als bijlage, kies dan een klassieke notify-service (zoals de HA
+    Companion App die naast zijn entity registreert) en zet
+    `{{ trigger.event.data.image_url }}` in het "data > image"-veld.
+  domain: automation
+  source_url: https://github.com/Sarnog/ha-marktplaats/blob/main/blueprints/automation/marktplaats/new_listing_notify.yaml
+  input:
+    marktplaats_search:
+      name: Zoekopdracht
+      description: >
+        Beperk deze automation tot één specifieke Marktplaats-zoekopdracht.
+        Leeg laten om op elke zoekopdracht te reageren.
+      default: ""
+      selector:
+        config_entry:
+          integration: marktplaats
+    notify_action:
+      name: Melding-actie
+      description: >
+        De actie die de daadwerkelijke melding verstuurt. Zie de
+        beschrijving hierboven voor welke sjabloonvariabelen beschikbaar
+        zijn.
+      selector:
+        action: {}
+
+triggers:
+  - trigger: event
+    event_type: marktplaats_new_listing
+
+conditions:
+  - condition: template
+    value_template: >-
+      {{ not inputs.marktplaats_search or trigger.event.data.entry_id ==
+      inputs.marktplaats_search }}
+
+actions:
+  - variables:
+      listing_price_text: >-
+        {{ ("€ " ~ ('%.2f' | format(trigger.event.data.price_cents / 100) | replace('.', ',')))
+        if trigger.event.data.price_cents is not none
+        else (trigger.event.data.price_type or '') }}
+      listing_subtitle: >-
+        {{ [listing_price_text, trigger.event.data.location] | select
+        | join(' · ') }}
+  - sequence: !input notify_action
