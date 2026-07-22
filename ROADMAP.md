@@ -226,6 +226,14 @@ app"-actie in plaats van volledige automatisering. Zie de "Bekende risico's" in
   status-regel nu per taal herhaald, `---`-scheidingslijn tussen de secties -
   vastgelegd in het algemene geheugen om bij alle (toekomstige) integraties toe te
   passen.
+- **v0.2.3** - fix: elke automation van de blueprint kreeg dezelfde naam (Home
+  Assistant vraagt daar bij blueprints zelf niet actief om) - opgelost met een
+  verplicht naamveld. Daarnaast een testdekking-ontdekking: een kale
+  `HomeAssistant('.')`-instantie blijkt op dit Windows-ontwikkelsysteem te
+  construeren zonder de bekende `pytest-homeassistant-custom-component`-blokkade
+  (die zit specifiek in `homeassistant.runner`), waarmee de blueprint nu voor het
+  eerst tegen échte HA-validatie (inclusief `cv.template`-compilatie) getest kon
+  worden in plaats van alleen structureel.
 
 ## EN
 
@@ -440,3 +448,11 @@ action rather than full automation. See "Known risks" in [`README.md`](README.md
   NL/EN nav links at the top, badges and status line now repeated per language, an
   `---` divider between the sections - saved to general memory to apply to all
   (future) integrations.
+- **v0.2.3** - fix: every automation from the blueprint got the same name (Home
+  Assistant doesn't actually prompt for one with blueprints) - fixed with a required
+  name field. Also a test-coverage discovery: a bare `HomeAssistant('.')` instance
+  turns out to construct on this Windows dev machine without the known
+  `pytest-homeassistant-custom-component` blocker (which is specifically in
+  `homeassistant.runner`), letting the blueprint be tested against real HA validation
+  (including `cv.template` compilation) for the first time instead of only
+  structurally.
