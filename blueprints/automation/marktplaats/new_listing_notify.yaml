@@ -2,27 +2,30 @@ blueprint:
   name: Marktplaats - melding bij nieuwe advertentie
   description: >
     Stuurt een melding zodra de Marktplaats-integratie een nieuwe, matchende
-    advertentie vindt (`marktplaats_new_listing`-event). Je hoeft alleen aan
-    te geven wélke actie de melding moet versturen - titel, prijs, locatie,
-    link en foto worden automatisch ingevuld, geen sjablonen typen nodig.
+    advertentie vindt (`marktplaats_new_listing`-event). Titel, prijs,
+    locatie, link en foto worden automatisch ingevuld, geen sjablonen typen
+    nodig.
 
 
-    Kies bij "Melding-actie" ofwel een **notify-actie naar je telefoon**
-    (bv. `notify.mobile_app_telefoon`) - dan wordt titel en bericht
-    automatisch ingevuld (geen foto, want de moderne notify-entity-service
-    ondersteunt sinds Home Assistant's notify-entity-herontwerp geen
-    foto-bijlage meer, zie ROADMAP.md in de integratie's repo), ofwel een
-    **eigen script** (bv. `script.stuur_notificatie`) - dan krijgt dat
-    script de gegevens mee als variabelen (`title`, `message`, `price`,
-    `location`, `url`, `image_url`) die je er zelf in kunt gebruiken, inclusief
-    de foto. Dit gebeurt via `script.turn_on` met `variables:`, dus de
-    verplichte `fields:` van je eigen script worden hier *niet* op
-    gecontroleerd - heeft je script een verplicht veld waar deze blueprint
-    geen equivalent voor heeft (bv. een meldingskanaal of een specifieke
-    ontvanger, iets wat een Marktplaats-advertentie nu eenmaal niet
-    aanlevert), geef dat veld dan in je eigen script een vaste
-    standaardwaarde (bv. `{{ mijn_veld | default('Notify') }}`), anders
-    crasht je script zodra dit veld ontbreekt.
+    Vul bij "Melding-actie" een **klassieke notify-servicenaam** in (bv.
+    `mobile_app_telefoon` - te vinden via Ontwikkelaarstools > Acties, zoek
+    op "notify"; een volledig `notify.xxx` mag ook, de `notify.`-prefix
+    wordt automatisch gestript) - dit is bewust géén entity-picker: de
+    moderne notify-entities zijn vaak generiek (één gedeelde entity i.p.v.
+    één per toestel) en ondersteunen geen foto-bijlage, terwijl de
+    klassieke, per-toestel service dat wel doet. Ofwel vul je hier een
+    **eigen script** in (bv. `script.stuur_notificatie`) - handig als je
+    zelf meer wilt bepalen dan alleen titel/bericht/foto/kanaal.
+
+
+    Bij "Extra instellingen" kun je losse sleutel/waarde-paren opgeven die
+    worden meegestuurd - bv. `channel: Alarm` voor een ander meldingskanaal/
+    ringtone in de Companion App. Bij een notify-service komen die in het
+    `data`-veld terecht (naast de foto); bij een script als losse
+    variabelen (naast `title`/`message`/`price`/`location`/`url`/
+    `image_url`). Dit veld staat er altijd (Home Assistant-blueprints
+    kunnen geen velden tonen die alleen bij een bepaalde keuze verschijnen),
+    maar is volledig optioneel.
   domain: automation
   source_url: https://github.com/Sarnog/ha-marktplaats/blob/main/blueprints/automation/marktplaats/new_listing_notify.yaml
   input:
@@ -38,27 +41,19 @@ blueprint:
     notify_target:
       name: Melding-actie
       description: >
-        Een notify-actie (bv. `notify.mobile_app_telefoon`) of een script
-        (bv. `script.stuur_notificatie`) dat de melding verstuurt. Zie de
-        beschrijving hierboven voor wat elk van de twee krijgt.
+        Een klassieke notify-servicenaam (bv. `mobile_app_telefoon`, geen
+        `notify.`-prefix nodig) of een script-entiteit (bv.
+        `script.stuur_notificatie`). Zie de beschrijving hierboven voor
+        waarom dit een tekstveld is in plaats van een keuzelijst.
       selector:
-        entity:
-          domain:
-            - notify
-            - script
-    extra_script_data:
-      name: Extra instellingen voor je script (optioneel)
+        text: {}
+    extra_data:
+      name: Extra instellingen (optioneel)
       description: >
-        Alleen relevant als je hierboven een **script** hebt gekozen met
-        eigen verplichte velden waar deze blueprint geen equivalent voor
-        heeft (bv. een meldingskanaal of een specifieke ontvanger - Home
-        Assistant ondersteunt geen velden die alleen verschijnen als je een
-        script kiest, dus dit veld staat er altijd, maar negeer het gerust
-        bij een gewone `notify.mobile_app_*`-actie). Vul hier extra
-        sleutel/waarde-paren in die als losse variabelen aan je script
-        worden meegegeven, bovenop `title`/`message`/`price`/`location`/
-        `url`/`image_url` - bv. `message_channel: Notify` en
-        `ontvanger: danny`.
+        Losse sleutel/waarde-paren die worden meegestuurd - bv.
+        `channel: Alarm` voor een ander meldingskanaal/ringtone. Zie de
+        beschrijving hierboven voor waar dit precies terechtkomt. Leeg
+        laten als je dit niet nodig hebt.
       default: {}
       selector:
         object: {}
@@ -71,7 +66,7 @@ actions:
   - variables:
       marktplaats_search_id: !input marktplaats_search
       notify_target_id: !input notify_target
-      extra_script_data: !input extra_script_data
+      extra_data: !input extra_data
       listing_price_text: >-
         {{ ("€ " ~ ('%.2f' | format(trigger.event.data.price_cents / 100) | replace('.', ',')))
         if trigger.event.data.price_cents is not none
@@ -101,11 +96,11 @@ actions:
                 {{ dict(title=trigger.event.data.title, message=listing_message,
                 price=listing_price_text, location=trigger.event.data.location,
                 url=trigger.event.data.url, image_url=trigger.event.data.image_url,
-                **extra_script_data) }}
+                **extra_data) }}
     default:
-      - action: notify.send_message
-        target:
-          entity_id: "{{ notify_target_id }}"
+      - action: "notify.{{ notify_target_id.removeprefix('notify.') }}"
         data:
           title: "{{ trigger.event.data.title }}"
           message: "{{ listing_message }}"
+          data: >-
+            {{ dict(image=(trigger.event.data.image_url or ''), **extra_data) }}
