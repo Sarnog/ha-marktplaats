@@ -288,6 +288,49 @@ een willekeurig scripts's eigen `fields:`-schema, wat het platform niet
 ondersteunt (zelfde conclusie als bij de vorige uitbreiding: geen
 voorwaardelijke of dynamisch-gegenereerde velden mogelijk in blueprints).
 
+**Blueprint vereenvoudigd (2026-07-23, geen versiebump): scripts eruit,
+device-picker + kanaal-veld erin - gebaseerd op een voorbeeld-blueprint die
+de gebruiker aandroeg.** De gebruiker gaf aan dat eerdere iteraties steeds
+verder van de eigenlijke wens afdreven en wilde terug naar het
+oorspronkelijke, simpele doel: alleen kiezen náár wie en over welk kanaal,
+verder alles automatisch. Script-ondersteuning (`extra_data`,
+`script.turn_on`) is volledig verwijderd. In plaats van een tekstveld voor
+een klassieke notify-servicenaam gebruikt de blueprint nu een `device`-
+selector (`integration: mobile_app`) - een keuzemenu met daadwerkelijke
+toestelnamen - gecombineerd met Home Assistant's ingebouwde **device
+notify-actie** (`domain: mobile_app`, `type: notify`, `device_id: !input
+notify_device`, i.p.v. een gewone servicecall). Deze actie is bevestigd in
+`mobile_app/device_action.py`: `async_call_action_from_config` zoekt zelf de
+juiste, klassieke per-toestel notify-service op via de webhook-ID die bij
+het gekozen apparaat hoort (`get_notify_service`) en roept die aan met
+`target`, `message`, `title`, `data` - exact hetzelfde mechanisme dat de
+door de gebruiker aangedragen voorbeeld-blueprint ook gebruikt. Los
+`notify_channel`-invoerveld (optioneel, tekst) voor een Android-
+meldingskanaal/ringtone, samengevoegd in `data` naast de foto.
+
+**Validatiebeperking bij deze wijziging, expliciet benoemd i.p.v.
+verzwegen:** de volledige real-`HomeAssistant`-validatietechniek uit v0.2.3
+liep hier voor het eerst vast - niet op een fout in de blueprint, maar
+omdat het enkel *importeren* van `mobile_app` transitief Home Assistant's
+volledige cloud-/spraakassistent-afhankelijkhedenketen meetrekt
+(`cloud` → `alexa` → `camera`/`stream` → `assist_pipeline` → `conversation`
+→ het `hassil`-taalherkenningspakket, en apart ook `turbojpeg`/`numpy`/
+`mutagen`), wat op dit Windows-ontwikkelsysteem niet praktisch te
+installeren is (dezelfde categorie beperking als de bekende
+`pytest-homeassistant-custom-component`-blokkade, maar dieper in een
+andere afhankelijkheidsketen). In plaats daarvan is `device_action.py`'s
+`ACTION_SCHEMA` (`vol.Required(CONF_TYPE): "notify"`,
+`vol.Required(ATTR_MESSAGE): cv.template`, `vol.Optional(ATTR_TITLE):
+cv.template`, `vol.Optional(ATTR_DATA): cv.template_complex`) rechtstreeks
+uit de broncode gelezen en handmatig tegen de actiestap-structuur
+gecontroleerd (komt exact overeen) - een iets zwakkere vorm van verificatie
+dan de eerdere "echt gedraaid en `validation_error: None` gezien"-aanpak,
+expliciet zo benoemd in plaats van hetzelfde vertrouwen te suggereren als
+bij de wél volledig geteste onderdelen (de `variables:`/`if`/`stop`-logica
+van deze blueprint werd wel volledig end-to-end gevalideerd, alleen de
+nieuwe device-actie-stap zelf niet). Test dit onderdeel dus zelf extra
+goed in een echte Home Assistant-instantie.
+
 **Nieuw versiebeleid voor deze blueprint (afgesproken met de gebruiker,
 2026-07-23): wijzigingen die uitsluitend de blueprint raken (niet
 `custom_components/marktplaats/*.py`) krijgen geen versiebump/tag/release
@@ -658,6 +701,42 @@ would require Home Assistant blueprint inputs to be generated from an arbitrary
 script's own `fields:` schema, which the platform doesn't support (same conclusion as
 the previous addition: no conditional or dynamically-generated fields are possible in
 blueprints).
+
+**Blueprint simplified (2026-07-23, no version bump): scripts removed, device
+picker + channel field added - based on an example blueprint the user provided.**
+The user said earlier iterations kept drifting further from the actual goal and
+wanted to return to the original, simple intent: only pick who to notify and which
+channel, everything else automatic. Script support (`extra_data`, `script.turn_on`)
+was removed entirely. Instead of a text field for a classic notify service name, the
+blueprint now uses a `device` selector (`integration: mobile_app`) - an actual picker
+listing device names - combined with Home Assistant's built-in **device notify
+action** (`domain: mobile_app`, `type: notify`, `device_id: !input notify_device`,
+instead of a plain service call). This action is confirmed in
+`mobile_app/device_action.py`: `async_call_action_from_config` itself looks up the
+right, classic per-device notify service via the webhook ID tied to the chosen device
+(`get_notify_service`) and calls it with `target`, `message`, `title`, `data` - the
+exact same mechanism the example blueprint the user provided also uses. A separate,
+optional `notify_channel` text input for an Android notification channel/ringtone,
+merged into `data` alongside the photo.
+
+**Validation limit on this change, explicitly stated rather than glossed over:** the
+full real-`HomeAssistant` validation technique from v0.2.3 hit a wall here for the
+first time - not a bug in the blueprint, but because merely *importing* `mobile_app`
+transitively pulls in Home Assistant's entire cloud/voice-assistant dependency chain
+(`cloud` → `alexa` → `camera`/`stream` → `assist_pipeline` → `conversation` → the
+`hassil` language-recognition package, plus separately `turbojpeg`/`numpy`/
+`mutagen`), which isn't practically installable on this Windows dev machine (same
+category of limitation as the known `pytest-homeassistant-custom-component` blocker,
+just deeper in a different dependency chain). Instead, `device_action.py`'s
+`ACTION_SCHEMA` (`vol.Required(CONF_TYPE): "notify"`, `vol.Required(ATTR_MESSAGE):
+cv.template`, `vol.Optional(ATTR_TITLE): cv.template`, `vol.Optional(ATTR_DATA):
+cv.template_complex`) was read directly from source and manually checked against the
+action step's structure (matches exactly) - a somewhat weaker form of verification
+than the earlier "actually ran it and saw `validation_error: None`" approach,
+explicitly called out here rather than implying the same confidence as the parts that
+were fully tested (this blueprint's `variables:`/`if`/`stop` logic was fully
+validated end to end; only the new device-action step itself wasn't). So test this
+part yourself extra carefully on a real Home Assistant instance.
 
 **New versioning policy for this blueprint (agreed with the user, 2026-07-23):
 changes that only touch the blueprint (not `custom_components/marktplaats/*.py`) no
