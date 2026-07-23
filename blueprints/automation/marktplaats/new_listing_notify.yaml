@@ -19,16 +19,6 @@ blueprint:
   domain: automation
   source_url: https://github.com/Sarnog/ha-marktplaats/blob/main/blueprints/automation/marktplaats/new_listing_notify.yaml
   input:
-    automation_name:
-      name: Naam van deze automation
-      description: >
-        Home Assistant vraagt dit bij blueprint-automations zelf niet actief
-        - zonder dit veld zouden alle automations die je van deze blueprint
-        maakt dezelfde naam krijgen (met een oplopend nummer achter de
-        entiteit-ID om ze uniek te houden). Vul hier iets herkenbaars in,
-        bv. "Marktplaats melding - Garage".
-      selector:
-        text: {}
     marktplaats_search:
       name: Zoekopdracht
       description: >
@@ -49,8 +39,6 @@ blueprint:
           domain:
             - notify
             - script
-
-alias: !input automation_name
 
 triggers:
   - trigger: event
