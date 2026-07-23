@@ -247,6 +247,47 @@ zou een Jinja-fout geven; dat risico is beperkt genoeg om niet extra tegen te
 beveiligen, en staat impliciet in de invoerbeschrijving door de vaste namen
 te noemen.
 
+**Blueprint-herontwerp (2026-07-23, geen versiebump): `notify_target` van
+entity-picker naar tekstveld, foto ook voor notify-services, `extra_data`
+generieker gemaakt.** Een gebruiker meldde dat `notify.mobile_app_*` niet in
+de keuzelijst van "Melding-actie" verscheen - alleen een generieke
+`notify.<naam>`-entity die niets naar hun telefoon stuurde. Root cause:
+moderne HA-installaties hebben vaak maar één gedeelde notify-entity in
+plaats van één per toestel; de `EntitySelector(domain=[notify, script])` uit
+v0.2.2 kan de klassieke, per-toestel notify-*service* (zoals
+`notify.mobile_app_telefoon`) dus principieel niet aanbieden, want dat is
+geen entity. Precies dezelfde reden waarom de integratie's eigen
+`notify_service`-config-flow-optie (v0.2.0) al bewust een tekstveld is in
+plaats van een entity-picker.
+
+Opgelost door `notify_target` ook hier een tekstveld te maken (identiek
+concept als de integratie's eigen `notify_service`): een klassieke
+servicenaam wordt direct aangeroepen als `notify.{{ notify_target_id.removeprefix('notify.') }}`
+(geen `target:`/entity_id nodig - de servicenaam **is** het doel), een
+script-entiteit (`script.xxx`) blijft via `script.turn_on` gaan. De
+dynamische servicenaam-template is expliciet geverifieerd te werken tijdens
+uitvoering (niet alleen bij het opslaan) door
+`homeassistant/helpers/service.py`'s `async_prepare_call_from_config` te
+lezen: die rendert een `template.Template`-instantie in het `action`-veld
+altijd vóór de servicecall. Hiermee kan de notify-tak nu ook een foto
+meesturen (`data.image`), wat met de entity-gebaseerde `notify.send_message`
+nooit kon (zie de v0.2.2-bevinding hierboven) - de blueprint gebruikt nu
+voor beide takken dezelfde, al bewezen klassieke-notify-service-aanpak als
+de integratie zelf.
+
+Tegelijk `extra_script_data` hernoemd naar `extra_data` en generieker
+gemaakt: rechtstreeks gevraagd door de gebruiker om ook een
+meldingskanaal/ringtone (`channel`) te kunnen instellen bij een gewone
+notify-service, niet alleen bij een script. Voor een notify-service komt
+`extra_data` nu in het `data`-veld terecht (samen met `image`); voor een
+script blijven het losse variabelen. Bewust géén poging gedaan om de
+velden van een specifiek script automatisch te detecteren en als
+keuzemenu's weer te geven (zoals de gebruiker oorspronkelijk vroeg) - dat
+zou vereisen dat Home Assistant blueprint-inputs kan genereren op basis van
+een willekeurig scripts's eigen `fields:`-schema, wat het platform niet
+ondersteunt (zelfde conclusie als bij de vorige uitbreiding: geen
+voorwaardelijke of dynamisch-gegenereerde velden mogelijk in blueprints).
+
 **Nieuw versiebeleid voor deze blueprint (afgesproken met de gebruiker,
 2026-07-23): wijzigingen die uitsluitend de blueprint raken (niet
 `custom_components/marktplaats/*.py`) krijgen geen versiebump/tag/release
@@ -582,6 +623,41 @@ the real-`HomeAssistant` validation technique). No key-collision protection buil
 `message`, `price`, `location`, `url`, `image_url`) would cause a Jinja error; that
 risk is small enough not to guard against explicitly, and is implicitly covered by
 naming those fixed keys in the input's own description.
+
+**Blueprint redesign (2026-07-23, no version bump): `notify_target` from entity
+picker to text field, photo support for notify services too, `extra_data`
+generalized.** A user reported `notify.mobile_app_*` didn't show up in the "Notify
+action" picker at all - only a generic `notify.<name>` entity that sent nothing to
+their phone. Root cause: many modern HA installs only have one shared notify entity
+instead of one per device; v0.2.2's `EntitySelector(domain=[notify, script])`
+therefore can't offer the classic, per-device notify *service* (like
+`notify.mobile_app_phone`) at all, since that isn't an entity. Exactly the same
+reason the integration's own `notify_service` config-flow option (v0.2.0) is
+deliberately a text field rather than an entity picker.
+
+Fixed by making `notify_target` a text field here too (identical concept to the
+integration's own `notify_service`): a classic service name is called directly as
+`notify.{{ notify_target_id.removeprefix('notify.') }}` (no `target:`/entity_id
+needed - the service name itself *is* the target), a script entity (`script.xxx`)
+still goes through `script.turn_on`. The dynamic service-name template was
+explicitly verified to work at execution time (not just on save) by reading
+`homeassistant/helpers/service.py`'s `async_prepare_call_from_config`: it always
+renders a `template.Template` instance found in the `action` field before the
+service call. This also means the notify branch can now send a photo (`data.image`),
+which was never possible with the entity-based `notify.send_message` (see the v0.2.2
+finding above) - the blueprint now uses the same, already-proven classic-notify-
+service approach as the integration itself for both branches.
+
+At the same time, renamed `extra_script_data` to `extra_data` and generalized it:
+directly requested by the user to also be able to set a notification channel/ringtone
+(`channel`) for a plain notify service, not just for a script. For a notify service,
+`extra_data` now lands in the `data` field (alongside `image`); for a script it
+remains separate variables. Deliberately did not attempt to auto-detect a specific
+script's own fields and render them as pickers (as the user originally asked) - that
+would require Home Assistant blueprint inputs to be generated from an arbitrary
+script's own `fields:` schema, which the platform doesn't support (same conclusion as
+the previous addition: no conditional or dynamically-generated fields are possible in
+blueprints).
 
 **New versioning policy for this blueprint (agreed with the user, 2026-07-23):
 changes that only touch the blueprint (not `custom_components/marktplaats/*.py`) no
