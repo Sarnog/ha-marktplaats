@@ -15,7 +15,14 @@ blueprint:
     **eigen script** (bv. `script.stuur_notificatie`) - dan krijgt dat
     script de gegevens mee als variabelen (`title`, `message`, `price`,
     `location`, `url`, `image_url`) die je er zelf in kunt gebruiken, inclusief
-    de foto.
+    de foto. Dit gebeurt via `script.turn_on` met `variables:`, dus de
+    verplichte `fields:` van je eigen script worden hier *niet* op
+    gecontroleerd - heeft je script een verplicht veld waar deze blueprint
+    geen equivalent voor heeft (bv. een meldingskanaal of een specifieke
+    ontvanger, iets wat een Marktplaats-advertentie nu eenmaal niet
+    aanlevert), geef dat veld dan in je eigen script een vaste
+    standaardwaarde (bv. `{{ mijn_veld | default('Notify') }}`), anders
+    crasht je script zodra dit veld ontbreekt.
   domain: automation
   source_url: https://github.com/Sarnog/ha-marktplaats/blob/main/blueprints/automation/marktplaats/new_listing_notify.yaml
   input:
@@ -70,8 +77,9 @@ actions:
             value_template: "{{ notify_target_id.split('.')[0] == 'script' }}"
         sequence:
           - action: script.turn_on
-            data:
+            target:
               entity_id: "{{ notify_target_id }}"
+            data:
               variables:
                 title: "{{ trigger.event.data.title }}"
                 message: "{{ listing_message }}"
@@ -81,7 +89,8 @@ actions:
                 image_url: "{{ trigger.event.data.image_url }}"
     default:
       - action: notify.send_message
-        data:
+        target:
           entity_id: "{{ notify_target_id }}"
+        data:
           title: "{{ trigger.event.data.title }}"
           message: "{{ listing_message }}"
