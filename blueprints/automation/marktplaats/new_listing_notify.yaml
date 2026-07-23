@@ -1,31 +1,20 @@
 blueprint:
   name: Marktplaats - melding bij nieuwe advertentie
   description: >
-    Stuurt een melding zodra de Marktplaats-integratie een nieuwe, matchende
-    advertentie vindt (`marktplaats_new_listing`-event). Titel, prijs,
-    locatie, link en foto worden automatisch ingevuld, geen sjablonen typen
-    nodig.
+    Stuurt een pushmelding naar de HA Companion App zodra de
+    Marktplaats-integratie een nieuwe, matchende advertentie vindt
+    (`marktplaats_new_listing`-event). Je kiest alleen naar welk toestel de
+    melding moet - titel, prijs, locatie, link en foto worden automatisch
+    ingevuld, geen sjablonen typen nodig.
 
 
-    Vul bij "Melding-actie" een **klassieke notify-servicenaam** in (bv.
-    `mobile_app_telefoon` - te vinden via Ontwikkelaarstools > Acties, zoek
-    op "notify"; een volledig `notify.xxx` mag ook, de `notify.`-prefix
-    wordt automatisch gestript) - dit is bewust géén entity-picker: de
-    moderne notify-entities zijn vaak generiek (één gedeelde entity i.p.v.
-    één per toestel) en ondersteunen geen foto-bijlage, terwijl de
-    klassieke, per-toestel service dat wel doet. Ofwel vul je hier een
-    **eigen script** in (bv. `script.stuur_notificatie`) - handig als je
-    zelf meer wilt bepalen dan alleen titel/bericht/foto/kanaal.
-
-
-    Bij "Extra instellingen" kun je losse sleutel/waarde-paren opgeven die
-    worden meegestuurd - bv. `channel: Alarm` voor een ander meldingskanaal/
-    ringtone in de Companion App. Bij een notify-service komen die in het
-    `data`-veld terecht (naast de foto); bij een script als losse
-    variabelen (naast `title`/`message`/`price`/`location`/`url`/
-    `image_url`). Dit veld staat er altijd (Home Assistant-blueprints
-    kunnen geen velden tonen die alleen bij een bepaalde keuze verschijnen),
-    maar is volledig optioneel.
+    Gebruikt Home Assistant's ingebouwde "device notify"-actie
+    (`domain: mobile_app`), dezelfde die ook achter een keuzemenu met
+    toestelnamen zit in andere notificatie-blueprints - dat lost zelf de
+    juiste, klassieke notify-service voor het gekozen toestel op
+    (inclusief foto-ondersteuning, in tegenstelling tot de moderne
+    notify-entities die dat sinds Home Assistant's notify-entity-herontwerp
+    niet meer bieden).
   domain: automation
   source_url: https://github.com/Sarnog/ha-marktplaats/blob/main/blueprints/automation/marktplaats/new_listing_notify.yaml
   input:
@@ -38,25 +27,24 @@ blueprint:
       selector:
         config_entry:
           integration: marktplaats
-    notify_target:
-      name: Melding-actie
+    notify_device:
+      name: Telefoon
       description: >
-        Een klassieke notify-servicenaam (bv. `mobile_app_telefoon`, geen
-        `notify.`-prefix nodig) of een script-entiteit (bv.
-        `script.stuur_notificatie`). Zie de beschrijving hierboven voor
-        waarom dit een tekstveld is in plaats van een keuzelijst.
+        Het toestel dat de melding moet ontvangen. Moet de officiële Home
+        Assistant Companion App draaien.
+      selector:
+        device:
+          integration: mobile_app
+    notify_channel:
+      name: Meldingskanaal (optioneel, Android)
+      description: >
+        Naam van een meldingskanaal dat je al eerder in de Companion App
+        hebt gebruikt (bv. "Alarm") - zo kun je in de app een eigen
+        ringtone/prioriteit instellen specifiek voor Marktplaats-meldingen.
+        Leeg laten om het standaardkanaal te gebruiken.
+      default: ""
       selector:
         text: {}
-    extra_data:
-      name: Extra instellingen (optioneel)
-      description: >
-        Losse sleutel/waarde-paren die worden meegestuurd - bv.
-        `channel: Alarm` voor een ander meldingskanaal/ringtone. Zie de
-        beschrijving hierboven voor waar dit precies terechtkomt. Leeg
-        laten als je dit niet nodig hebt.
-      default: {}
-      selector:
-        object: {}
 
 triggers:
   - trigger: event
@@ -65,8 +53,7 @@ triggers:
 actions:
   - variables:
       marktplaats_search_id: !input marktplaats_search
-      notify_target_id: !input notify_target
-      extra_data: !input extra_data
+      notify_channel: !input notify_channel
       listing_price_text: >-
         {{ ("€ " ~ ('%.2f' | format(trigger.event.data.price_cents / 100) | replace('.', ',')))
         if trigger.event.data.price_cents is not none
@@ -83,24 +70,11 @@ actions:
           marktplaats_search_id }}
     then:
       - stop: Advertentie hoort niet bij de geselecteerde zoekopdracht
-  - choose:
-      - conditions:
-          - condition: template
-            value_template: "{{ notify_target_id.split('.')[0] == 'script' }}"
-        sequence:
-          - action: script.turn_on
-            target:
-              entity_id: "{{ notify_target_id }}"
-            data:
-              variables: >-
-                {{ dict(title=trigger.event.data.title, message=listing_message,
-                price=listing_price_text, location=trigger.event.data.location,
-                url=trigger.event.data.url, image_url=trigger.event.data.image_url,
-                **extra_data) }}
-    default:
-      - action: "notify.{{ notify_target_id.removeprefix('notify.') }}"
-        data:
-          title: "{{ trigger.event.data.title }}"
-          message: "{{ listing_message }}"
-          data: >-
-            {{ dict(image=(trigger.event.data.image_url or ''), **extra_data) }}
+  - device_id: !input notify_device
+    domain: mobile_app
+    type: notify
+    title: "{{ trigger.event.data.title }}"
+    message: "{{ listing_message }}"
+    data: >-
+      {{ dict(image=(trigger.event.data.image_url or ''),
+      **(dict(channel=notify_channel) if notify_channel else {})) }}
