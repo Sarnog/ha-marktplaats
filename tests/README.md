@@ -45,6 +45,18 @@ concreet voorbeeld. Dit is (nog) niet verweven in de `pytest`-suite zelf
 (zou een per-test `HomeAssistant()`-instantie plus dezelfde lazy-seeding
 vereisen) - voorlopig alleen gebruikt voor losse, gerichte verificatie.
 
+**Belangrijke grens van deze techniek (v0.2.4):** `async_validate_config_item`
+valideert schema's en Jinja-sjabloonsyntax, maar niet of een
+sjabloon-variabele op het moment dat een automation daadwerkelijk draait ook
+echt bestaat. Zo compileerde `{{ inputs.marktplaats_search }}` prima, maar
+faalde pas live in de gebruiker's eigen Home Assistant met
+`UndefinedError: 'inputs' is undefined`, omdat Home Assistant helemaal geen
+`inputs`-object in de runtime-context van een `condition: template`-stap
+zet. Dat soort fouten vind je alleen door de HA-broncode na te lopen op waar
+zo'n object gevuld zou worden, of door de automation echt te laten draaien -
+niet door alleen deze validatietechniek te gebruiken. Zie `ROADMAP.md`'s
+v0.2.4-notitie.
+
 Als je dit project op Linux/macOS ontwikkelt (of via WSL), kun je wel de
 volledige `pytest-homeassistant-custom-component`-suite gebruiken voor
 config-flow- en coordinator-tests.
@@ -93,6 +105,17 @@ retrying - converges within a few iterations. See `ROADMAP.md`'s v0.2.3 note
 for a concrete example. This isn't (yet) wired into the `pytest` suite itself
 (would need a per-test `HomeAssistant()` instance plus the same lazy
 seeding) - for now it's only used for one-off, targeted verification.
+
+**Important limit of this technique (v0.2.4):** `async_validate_config_item`
+validates schemas and Jinja template syntax, but not whether a template
+variable actually exists at the moment an automation really runs. For
+example, `{{ inputs.marktplaats_search }}` compiled fine, but only failed
+live in the user's own Home Assistant with `UndefinedError: 'inputs' is
+undefined`, because Home Assistant never puts an `inputs` object into the
+runtime context of a `condition: template` step at all. Bugs like that are
+only found by reading the HA source for wherever such an object would be
+populated, or by actually running the automation - not by this validation
+technique alone. See `ROADMAP.md`'s v0.2.4 note.
 
 If you develop this project on Linux/macOS (or via WSL), you can use the
 full `pytest-homeassistant-custom-component` suite for config-flow and
