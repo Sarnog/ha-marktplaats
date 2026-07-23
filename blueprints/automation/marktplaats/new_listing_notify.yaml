@@ -46,6 +46,22 @@ blueprint:
           domain:
             - notify
             - script
+    extra_script_data:
+      name: Extra instellingen voor je script (optioneel)
+      description: >
+        Alleen relevant als je hierboven een **script** hebt gekozen met
+        eigen verplichte velden waar deze blueprint geen equivalent voor
+        heeft (bv. een meldingskanaal of een specifieke ontvanger - Home
+        Assistant ondersteunt geen velden die alleen verschijnen als je een
+        script kiest, dus dit veld staat er altijd, maar negeer het gerust
+        bij een gewone `notify.mobile_app_*`-actie). Vul hier extra
+        sleutel/waarde-paren in die als losse variabelen aan je script
+        worden meegegeven, bovenop `title`/`message`/`price`/`location`/
+        `url`/`image_url` - bv. `message_channel: Notify` en
+        `ontvanger: danny`.
+      default: {}
+      selector:
+        object: {}
 
 triggers:
   - trigger: event
@@ -55,6 +71,7 @@ actions:
   - variables:
       marktplaats_search_id: !input marktplaats_search
       notify_target_id: !input notify_target
+      extra_script_data: !input extra_script_data
       listing_price_text: >-
         {{ ("€ " ~ ('%.2f' | format(trigger.event.data.price_cents / 100) | replace('.', ',')))
         if trigger.event.data.price_cents is not none
@@ -80,13 +97,11 @@ actions:
             target:
               entity_id: "{{ notify_target_id }}"
             data:
-              variables:
-                title: "{{ trigger.event.data.title }}"
-                message: "{{ listing_message }}"
-                price: "{{ listing_price_text }}"
-                location: "{{ trigger.event.data.location }}"
-                url: "{{ trigger.event.data.url }}"
-                image_url: "{{ trigger.event.data.image_url }}"
+              variables: >-
+                {{ dict(title=trigger.event.data.title, message=listing_message,
+                price=listing_price_text, location=trigger.event.data.location,
+                url=trigger.event.data.url, image_url=trigger.event.data.image_url,
+                **extra_script_data) }}
     default:
       - action: notify.send_message
         target:
