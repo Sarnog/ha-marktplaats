@@ -62,13 +62,20 @@ def test_build_notify_payload_includes_title_price_location_and_url() -> None:
     assert "€ 150,00" in payload["message"]
     assert "Utrecht" in payload["message"]
     assert "https://link.marktplaats.nl/m123" in payload["message"]
-    assert payload["data"] == {"image": "https://images.marktplaats.com/foo.jpg"}
+    assert payload["data"] == {
+        "url": "https://link.marktplaats.nl/m123",
+        "clickAction": "https://link.marktplaats.nl/m123",
+        "image": "https://images.marktplaats.com/foo.jpg",
+    }
 
 
-def test_build_notify_payload_omits_data_without_image() -> None:
+def test_build_notify_payload_omits_image_without_picture_but_keeps_url() -> None:
     item = {"itemId": "m456", "title": "Bureau", "priceInfo": {}, "location": {}}
 
     payload = _build_notify_payload(item)
 
-    assert "data" not in payload
+    assert payload["data"] == {
+        "url": "https://link.marktplaats.nl/m456",
+        "clickAction": "https://link.marktplaats.nl/m456",
+    }
     assert payload["message"] == "https://link.marktplaats.nl/m456"

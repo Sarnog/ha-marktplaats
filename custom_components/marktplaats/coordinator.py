@@ -69,7 +69,16 @@ def _format_price(item: dict[str, Any]) -> str | None:
 
 
 def _build_notify_payload(item: dict[str, Any]) -> dict[str, Any]:
-    """Bouwt de payload voor een klassieke notify-service uit een advertentie."""
+    """Bouwt de payload voor een klassieke notify-service uit een advertentie.
+
+    Zet zowel "url" (de sleutel die de iOS Companion App leest) als
+    "clickAction" (het Android-equivalent - los, niet-uitwisselbaar veld,
+    empirisch geverifieerd via companion.home-assistant.io/docs/notifications/
+    notifications-basic) op dezelfde advertentielink, zodat tikken op de
+    melding de advertentie opent ongeacht op welk platform de geconfigureerde
+    notify-service daadwerkelijk uitkomt (de integratie weet dat zelf niet -
+    de gebruiker vult alleen een servicenaam in).
+    """
     price = _format_price(item)
     location = item.get("location", {}).get("cityName")
     subtitle = " · ".join(part for part in (price, location) if part)
@@ -79,9 +88,11 @@ def _build_notify_payload(item: dict[str, Any]) -> dict[str, Any]:
         notify.ATTR_TITLE: item.get("title"),
         notify.ATTR_MESSAGE: "\n".join(line for line in (subtitle, url) if line),
     }
+    data: dict[str, Any] = {"url": url, "clickAction": url}
     image_url = _first_image_url(item)
     if image_url:
-        payload[notify.ATTR_DATA] = {"image": image_url}
+        data["image"] = image_url
+    payload[notify.ATTR_DATA] = data
     return payload
 
 
