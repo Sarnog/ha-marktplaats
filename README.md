@@ -101,6 +101,12 @@ Er zijn twee manieren, van simpel naar flexibel:
    - Een **eigen script** (bv. `script.stuur_notificatie`) - het script krijgt
      `title`, `message`, `price`, `location`, `url` en `image_url` als
      variabelen mee, zodat je daar zelf (met foto) een melding mee kunt bouwen.
+     Heeft je script eigen verplichte velden waar deze blueprint geen
+     equivalent voor heeft (bv. een meldingskanaal of specifieke ontvanger)?
+     Vul die dan in bij **"Extra instellingen voor je script"** - dat veld
+     staat er altijd (Home Assistant-blueprints kunnen geen velden tonen die
+     alleen bij een script-keuze verschijnen), maar hoef je bij een gewone
+     notify-actie niet in te vullen.
    - Optioneel te beperken tot één specifieke zoekopdracht.
    - Home Assistant vraagt bij het opslaan zelf om een naam voor de
      automation. Krijg je die vraag niet, of hebben meerdere automations van
@@ -259,6 +265,11 @@ There are two ways, from simple to flexible:
    - Your **own script** (e.g. `script.send_notification`) - the script
      receives `title`, `message`, `price`, `location`, `url`, and `image_url`
      as variables, so you can build your own notification with a photo there.
+     Does your script have its own required fields this blueprint has no
+     equivalent for (e.g. a notification channel or a specific recipient)?
+     Fill those in under **"Extra settings for your script"** - that field is
+     always shown (Home Assistant blueprints can't show fields only when a
+     script is picked), but you can leave it empty for a plain notify action.
    - Optionally restrict it to a single search.
    - Home Assistant itself prompts you for a name when saving. If it doesn't,
      or if multiple automations from this blueprint end up with the same
