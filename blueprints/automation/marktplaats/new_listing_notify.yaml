@@ -56,14 +56,9 @@ triggers:
   - trigger: event
     event_type: marktplaats_new_listing
 
-conditions:
-  - condition: template
-    value_template: >-
-      {{ not inputs.marktplaats_search or trigger.event.data.entry_id ==
-      inputs.marktplaats_search }}
-
 actions:
   - variables:
+      marktplaats_search_id: !input marktplaats_search
       notify_target_id: !input notify_target
       listing_price_text: >-
         {{ ("€ " ~ ('%.2f' | format(trigger.event.data.price_cents / 100) | replace('.', ',')))
@@ -74,6 +69,13 @@ actions:
         | join(' · ') }}
       listing_message: >-
         {{ [listing_subtitle, trigger.event.data.url] | select | join('\n') }}
+  - if:
+      - condition: template
+        value_template: >-
+          {{ marktplaats_search_id and trigger.event.data.entry_id !=
+          marktplaats_search_id }}
+    then:
+      - stop: Advertentie hoort niet bij de geselecteerde zoekopdracht
   - choose:
       - conditions:
           - condition: template
