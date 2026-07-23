@@ -1,7 +1,7 @@
 blueprint:
-  name: Marktplaats - melding bij nieuwe advertentie
+  name: Marktplaats - melding bij nieuwe advertentie (iOS)
   description: >
-    Stuurt een pushmelding naar de HA Companion App zodra de
+    Stuurt een pushmelding naar de HA Companion App (iOS) zodra de
     Marktplaats-integratie een nieuwe, matchende advertentie vindt
     (`marktplaats_new_listing`-event). Je kiest alleen naar welk toestel de
     melding moet - titel, prijs, locatie, link en foto worden automatisch
@@ -13,12 +13,17 @@ blueprint:
     Gebruikt Home Assistant's ingebouwde "device notify"-actie
     (`domain: mobile_app`), dezelfde die ook achter een keuzemenu met
     toestelnamen zit in andere notificatie-blueprints - dat lost zelf de
-    juiste, klassieke notify-service voor het gekozen toestel op
-    (inclusief foto-ondersteuning, in tegenstelling tot de moderne
-    notify-entities die dat sinds Home Assistant's notify-entity-herontwerp
-    niet meer bieden).
+    juiste, klassieke notify-service voor het gekozen toestel op (inclusief
+    foto-ondersteuning).
+
+
+    iOS kent, anders dan Android, geen meldingskanalen (waarbij je vooraf in
+    de Companion App een kanaal met een eigen ringtone/prioriteit aanmaakt).
+    Het dichtstbijzijnde alternatief is een aangepast geluidsbestand: voeg
+    dat eerst toe via de Companion App (Instellingen > Meldingen > Geluiden)
+    en vul hieronder de bestandsnaam in.
   domain: automation
-  source_url: https://github.com/Sarnog/ha-marktplaats/blob/main/blueprints/automation/marktplaats/new_listing_notify.yaml
+  source_url: https://github.com/Sarnog/ha-marktplaats/blob/main/blueprints/automation/marktplaats/new_listing_notify_ios.yaml
   input:
     marktplaats_search:
       name: Zoekopdracht
@@ -37,13 +42,14 @@ blueprint:
       selector:
         device:
           integration: mobile_app
-    notify_channel:
-      name: Meldingskanaal (optioneel, Android)
+    notify_sound:
+      name: Aangepast geluid (optioneel, iOS)
       description: >
-        Naam van een meldingskanaal dat je al eerder in de Companion App
-        hebt gebruikt (bv. "Alarm") - zo kun je in de app een eigen
-        ringtone/prioriteit instellen specifiek voor Marktplaats-meldingen.
-        Leeg laten om het standaardkanaal te gebruiken.
+        Bestandsnaam van een aangepast meldingsgeluid dat je al hebt
+        toegevoegd via de Companion App (Instellingen > Meldingen >
+        Geluiden). iOS kent geen kanalen zoals Android; dit is het
+        dichtstbijzijnde alternatief voor een eigen ringtone specifiek voor
+        Marktplaats-meldingen. Leeg laten voor het standaardgeluid.
       default: ""
       selector:
         text: {}
@@ -55,7 +61,7 @@ triggers:
 actions:
   - variables:
       marktplaats_search_id: !input marktplaats_search
-      notify_channel: !input notify_channel
+      notify_sound: !input notify_sound
       listing_price_text: >-
         {{ ("€ " ~ ('%.2f' | format(trigger.event.data.price_cents / 100) | replace('.', ',')))
         if trigger.event.data.price_cents is not none
@@ -78,5 +84,5 @@ actions:
     title: "{{ trigger.event.data.title }}"
     message: "{{ listing_message }}"
     data: >-
-      {{ dict(image=(trigger.event.data.image_url or ''), clickAction=trigger.event.data.url,
-      **(dict(channel=notify_channel) if notify_channel else {})) }}
+      {{ dict(image=(trigger.event.data.image_url or ''), url=trigger.event.data.url,
+      **(dict(push=dict(sound=notify_sound)) if notify_sound else {})) }}
