@@ -89,24 +89,27 @@ Er zijn twee manieren, van simpel naar flexibel:
    toelichting). Werkt de opgegeven service niet (meer), dan wordt dat alleen
    als waarschuwing gelogd - de sensor en het event hieronder blijven gewoon
    werken.
-2. **Kant-en-klare blueprint**, voor wie een andere notify-actie of meer controle
-   wil. [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
-   klik de blueprint-badge bovenaan dit bestand om 'm te importeren. Je geeft
-   alleen aan **welke actie** de melding moet versturen; titel, prijs, locatie,
-   link (en bij een script ook de foto) worden automatisch ingevuld, geen
-   sjablonen zelf typen nodig:
-   - Een **notify-actie** (bv. `notify.mobile_app_telefoon`) - titel en bericht
-     worden ingevuld, geen foto (zelfde reden als hierboven bij optie 1: de
-     moderne notify-entity-service ondersteunt geen foto-bijlage).
-   - Een **eigen script** (bv. `script.stuur_notificatie`) - het script krijgt
-     `title`, `message`, `price`, `location`, `url` en `image_url` als
-     variabelen mee, zodat je daar zelf (met foto) een melding mee kunt bouwen.
-     Heeft je script eigen verplichte velden waar deze blueprint geen
-     equivalent voor heeft (bv. een meldingskanaal of specifieke ontvanger)?
-     Vul die dan in bij **"Extra instellingen voor je script"** - dat veld
-     staat er altijd (Home Assistant-blueprints kunnen geen velden tonen die
-     alleen bij een script-keuze verschijnen), maar hoef je bij een gewone
-     notify-actie niet in te vullen.
+2. **Kant-en-klare blueprint**, voor wie een andere notify-service of meer
+   controle wil. [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
+   klik de blueprint-badge bovenaan dit bestand om 'm te importeren. Titel,
+   prijs, locatie, link en foto worden automatisch ingevuld, geen sjablonen
+   zelf typen nodig:
+   - **Melding-actie** is een tekstveld, geen keuzelijst - vul een klassieke
+     notify-servicenaam in (bv. `mobile_app_telefoon`, net als bij optie 1
+     hierboven, `notify.`-prefix wordt automatisch gestript) of een
+     script-entiteit (bv. `script.stuur_notificatie`). Bewust geen
+     entity-picker: de moderne notify-entities zijn vaak generiek (één
+     gedeelde entity i.p.v. één per toestel) en ondersteunen geen
+     foto-bijlage; de klassieke, per-toestel service wel.
+   - **Extra instellingen** (optioneel): losse sleutel/waarde-paren die
+     worden meegestuurd, bv. `channel: Alarm` voor een ander
+     meldingskanaal/ringtone. Bij een notify-service komen die in het
+     `data`-veld terecht (naast de foto); bij een script als losse
+     variabelen (naast `title`/`message`/`price`/`location`/`url`/
+     `image_url`, handig als je script eigen verplichte velden heeft). Dit
+     veld staat er altijd (Home Assistant-blueprints kunnen geen velden
+     tonen die alleen bij een bepaalde keuze verschijnen), maar is volledig
+     optioneel.
    - Optioneel te beperken tot één specifieke zoekopdracht.
    - Home Assistant vraagt bij het opslaan zelf om een naam voor de
      automation. Krijg je die vraag niet, of hebben meerdere automations van
@@ -253,23 +256,26 @@ There are two ways, from simple to flexible:
    verified; see [`ROADMAP.md`](ROADMAP.md) for the technical explanation).
    If the configured service stops working, it's only logged as a warning -
    the sensor and the event below keep working regardless.
-2. **Ready-made blueprint**, for a different notify action or more control.
+2. **Ready-made blueprint**, for a different notify service or more control.
    [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
-   click the blueprint badge at the top of this file to import it. You only
-   specify **which action** should send the notification; title, price,
-   location, link (and, for a script, the photo) are filled in automatically -
-   no templates to write yourself:
-   - A **notify action** (e.g. `notify.mobile_app_phone`) - title and message
-     are filled in, no photo (same reason as option 1 above: the modern
-     notify-entity service doesn't support a photo attachment).
-   - Your **own script** (e.g. `script.send_notification`) - the script
-     receives `title`, `message`, `price`, `location`, `url`, and `image_url`
-     as variables, so you can build your own notification with a photo there.
-     Does your script have its own required fields this blueprint has no
-     equivalent for (e.g. a notification channel or a specific recipient)?
-     Fill those in under **"Extra settings for your script"** - that field is
-     always shown (Home Assistant blueprints can't show fields only when a
-     script is picked), but you can leave it empty for a plain notify action.
+   click the blueprint badge at the top of this file to import it. Title,
+   price, location, link, and photo are filled in automatically - no
+   templates to write yourself:
+   - **Notify action** is a text field, not a picker - fill in a classic
+     notify service name (e.g. `mobile_app_phone`, same as option 1 above,
+     the `notify.` prefix is stripped automatically) or a script entity
+     (e.g. `script.send_notification`). Deliberately not an entity picker:
+     modern notify entities are often generic (one shared entity instead of
+     one per device) and don't support a photo attachment; the classic,
+     per-device service does.
+   - **Extra settings** (optional): loose key/value pairs that get sent
+     along, e.g. `channel: Alarm` for a different notification channel/
+     ringtone. For a notify service these land in the `data` field (next to
+     the photo); for a script as separate variables (next to `title`/
+     `message`/`price`/`location`/`url`/`image_url`, handy if your script
+     has its own required fields). This field is always shown (Home
+     Assistant blueprints can't show fields only for a specific choice),
+     but is fully optional.
    - Optionally restrict it to a single search.
    - Home Assistant itself prompts you for a name when saving. If it doesn't,
      or if multiple automations from this blueprint end up with the same
