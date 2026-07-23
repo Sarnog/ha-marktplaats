@@ -196,6 +196,46 @@ Assistant's eigen "Naam wijzigen" (⋮-menu, geverifieerd te bestaan in
 `ha-automation-editor.ts` als de `rename`-actie) als de betrouwbare manier
 om een automation een eigen naam te geven.
 
+**Blueprint-fix (2026-07-23, geen versiebump - zie hieronder): "Geen doel
+ingesteld" in de visuele editor + eigen scripts met verplichte velden.**
+Een gebruiker zag bij "Controle nemen" over de automation dat beide acties
+(`script.turn_on` en `notify.send_message`) als doel "Geen doel ingesteld"
+toonden. Uitgezocht in de HA-frontend-broncode
+(`ha-automation-action-row.ts`): de rij-samenvatting van een actie leest het
+doel uitsluitend uit `action.target` of het legacy top-level
+`action.entity_id` - nooit uit `entity_id` binnen `data:`, wat deze blueprint
+tot dan toe gebruikte. Puur een weergaveprobleem (de daadwerkelijke
+servicecall-schema's accepteren `entity_id` in `data:` prima, al eerder
+empirisch bevestigd), maar wel verwarrend en niet de idiomatische stijl.
+Opgelost door `entity_id` naar een eigen `target:`-blok te verplaatsen voor
+beide acties, opnieuw gevalideerd met de echte-`HomeAssistant`-techniek
+(`validation_error: None`, `target:` bevestigd aanwezig op het juiste niveau
+in de gesubstitueerde config voor beide takken).
+
+Tegelijk bleek de daadwerkelijke reden dat de gebruiker geen bericht kreeg
+niet deze weergavebug te zijn, maar hun **eigen** notify-wrapper-script: dat
+script heeft een verplicht veld (`message_channel`, prio-kanaal) zonder
+`| default(...)` in de eigen sjabloon-code. `script.turn_on` met `variables:`
+controleert de `fields:`-definitie van een script niet (geen enforcement,
+puur cosmetisch voor de UI-formulierweergave als je het script handmatig
+triggert) - dus ontbrekende variabelen leiden pas tijdens de uitvoering tot
+een `UndefinedError` in het script zelf, niet tot een validatiefout hier.
+Een Marktplaats-advertentie levert nu eenmaal geen "meldingskanaal" of
+"gewenste ontvanger" aan - dat is iets wat het eigen script altijd al zelf
+moest kiezen. De blueprint-beschrijving waarschuwt hier nu expliciet voor en
+adviseert een vaste standaardwaarde in het eigen script voor zulke velden.
+
+**Nieuw versiebeleid voor deze blueprint (afgesproken met de gebruiker,
+2026-07-23): wijzigingen die uitsluitend de blueprint raken (niet
+`custom_components/marktplaats/*.py`) krijgen geen versiebump/tag/release
+meer.** De blueprint is geen onderdeel van `manifest.json`'s versienummer en
+wordt rechtstreeks vanaf `main` geïmporteerd (de import-badge wijst naar het
+bestand op de hoofdbranch, niet naar een release-asset) - een aparte
+versiegeschiedenis-vermelding hiervoor zou HACS/releases nodeloos laten
+groeien voor iets dat toch al direct vanaf `main` gebruikt wordt. Wijzigingen
+aan de blueprint blijven wel gedocumenteerd in dit ROADMAP-bestand, alleen
+niet meer gekoppeld aan een `vX.Y.Z`.
+
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
 - **HA Repair issue bij herhaalde blokkades.** Stond al in het allereerste ontwerp
@@ -477,6 +517,40 @@ removing the `automation_name` input and the `alias:` line entirely; the README 
 points to Home Assistant's own "Rename" (⋮ menu, confirmed to exist in
 `ha-automation-editor.ts` as the `rename` action) as the reliable way to give an
 automation its own name.
+
+**Blueprint fix (2026-07-23, no version bump - see below): "No target set" in the
+visual editor + own scripts with required fields.** A user saw both actions
+(`script.turn_on` and `notify.send_message`) show "No target set" when using "Take
+control" on the automation. Researched the HA frontend source
+(`ha-automation-action-row.ts`): an action row's target summary is only read from
+`action.target` or the legacy top-level `action.entity_id` - never from `entity_id`
+nested inside `data:`, which this blueprint was using until now. Purely a display
+issue (the actual service call schemas accept `entity_id` inside `data:` fine,
+already empirically confirmed earlier), but confusing and not idiomatic style. Fixed
+by moving `entity_id` into its own `target:` block for both actions, re-validated
+with the real-`HomeAssistant` technique (`validation_error: None`, `target:`
+confirmed present at the right level in the substituted config for both branches).
+
+At the same time, the actual reason the user wasn't receiving a notification turned
+out not to be this display bug, but their **own** notify-wrapper script: it has a
+required field (`message_channel`, priority channel) with no `| default(...)` in its
+own template code. `script.turn_on` with `variables:` does not check a script's own
+`fields:` definition (no enforcement - purely cosmetic, only used for the UI form
+when triggering the script manually) - so missing variables only surface as an
+`UndefinedError` inside the script itself at execution time, not as a validation
+error here. A Marktplaats listing simply doesn't supply a "notification channel" or
+"preferred recipient" - that was always something the user's own script had to
+decide. The blueprint description now explicitly warns about this and recommends a
+fixed default value in the user's own script for such fields.
+
+**New versioning policy for this blueprint (agreed with the user, 2026-07-23):
+changes that only touch the blueprint (not `custom_components/marktplaats/*.py`) no
+longer get a version bump/tag/release.** The blueprint isn't part of `manifest.json`'s
+version number and is imported directly from `main` (the import badge points at the
+file on the main branch, not at a release asset) - a separate version-history entry
+for it would needlessly grow HACS/releases for something that's already used
+directly from `main`. Blueprint changes stay documented in this ROADMAP file, just no
+longer tied to a `vX.Y.Z`.
 
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
