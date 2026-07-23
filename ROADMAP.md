@@ -148,6 +148,35 @@ verifiëren in een echte Home Assistant-instantie, maar de "vereist een
 draaiende hass-event-loop en kon dus niet lokaal"-beperking uit eerdere
 versies is dus minder hard dan gedacht.
 
+**Belangrijke nuance op de v0.2.3-validatietechniek (ontdekt bij het
+opsporen van de v0.2.4-bug hieronder): `async_validate_config_item` valideert
+schema's en Jinja-sjabloonsyntax, maar niet of een sjabloon-variabele op het
+moment dat de automation daadwerkelijk draait ook echt bestaat.** Een
+sjabloon als `{{ inputs.marktplaats_search }}` compileert prima (geldige
+Jinja-syntax) maar faalt pas ten tijde van uitvoering met
+`UndefinedError: 'inputs' is undefined`, omdat Home Assistant geen `inputs`-
+object in de runtime-sjablooncontext van een `condition: template`-stap zet
+(geverifieerd door de HA-broncode te doorzoeken op waar zo'n object gevuld
+zou worden - nergens). Dat soort fouten vereist dus ófwel de broncode
+doorzoeken (zoals hier gedaan) ófwel daadwerkelijke uitvoering, niet alleen
+config-validatie.
+
+**v0.2.4 - fix: de zoekopdracht-filter crashte de automation altijd, gemeld
+door de gebruiker met een echte trace uit hun eigen Home Assistant.** De
+top-level `conditions:`-sectie gebruikte `inputs.marktplaats_search` - een
+sjabloon-variabele die simpelweg niet bestaat in een conditie-stap (zie
+hierboven). Elke keer dat de blueprint triggerde, faalde de conditie meteen
+met `UndefinedError: 'inputs' is undefined`, dus werd er nooit een melding
+verstuurd, ook niet als "Zoekopdracht" leeg gelaten was. Opgelost door de
+`conditions:`-sectie te verwijderen en de filter te verplaatsen naar een
+`if:`/`then: [stop: ...]`-actie, met `marktplaats_search_id: !input
+marktplaats_search` vastgelegd als gewone variabele (dezelfde, al bewezen
+werkende aanpak als `notify_target_id`) - `!input` wordt namelijk bij het
+opslaan van de automation al naar een letterlijke waarde omgezet, dus dat
+heeft geen runtime-`inputs`-object nodig. Alle drie de scenario's (geen
+filter, filter matcht, filter matcht niet) apart met Jinja2 en testdata
+doorgerekend om de stop-logica te bevestigen, niet alleen geredeneerd.
+
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
 - **HA Repair issue bij herhaalde blokkades.** Stond al in het allereerste ontwerp
@@ -234,6 +263,14 @@ app"-actie in plaats van volledige automatisering. Zie de "Bekende risico's" in
   (die zit specifiek in `homeassistant.runner`), waarmee de blueprint nu voor het
   eerst tegen échte HA-validatie (inclusief `cv.template`-compilatie) getest kon
   worden in plaats van alleen structureel.
+- **v0.2.4** - fix: de zoekopdracht-filter crashte de automation altijd (gemeld door
+  de gebruiker met een echte trace). `inputs.marktplaats_search` in de conditie
+  bestaat simpelweg niet als runtime-sjabloonvariabele in Home Assistant - opgelost
+  door de filter naar een `if`/`stop`-actie te verplaatsen met `!input` als gewone
+  variabele vastgelegd (dezelfde bewezen aanpak als elders in de blueprint). Ook een
+  belangrijke nuance op de v0.2.3-validatietechniek vastgelegd: die vangt
+  schema-/syntaxfouten, niet sjabloon-variabelen die pas tijdens uitvoering
+  ontbreken.
 
 ## EN
 
@@ -374,6 +411,31 @@ Assistant instance too, but the "requires a running hass event loop and couldn't
 validated locally" limitation from earlier versions is less hard than previously
 thought.
 
+**Important caveat on the v0.2.3 validation technique (discovered while tracking down
+the v0.2.4 bug below): `async_validate_config_item` validates schemas and Jinja
+template syntax, but not whether a template variable actually exists at the moment
+the automation really runs.** A template like `{{ inputs.marktplaats_search }}`
+compiles fine (valid Jinja syntax) but only fails at execution time with
+`UndefinedError: 'inputs' is undefined`, because Home Assistant doesn't put an
+`inputs` object into the runtime template context of a `condition: template` step
+(confirmed by searching the HA source for wherever such an object would be
+populated - nowhere). Bugs like this require either reading the source (as done
+here) or actual execution, not just config validation.
+
+**v0.2.4 - fix: the search filter crashed the automation every time, reported by the
+user with a real trace from their own Home Assistant.** The top-level `conditions:`
+section used `inputs.marktplaats_search` - a template variable that simply doesn't
+exist in a condition step (see above). Every time the blueprint triggered, the
+condition immediately failed with `UndefinedError: 'inputs' is undefined`, so no
+notification was ever sent, even with "Zoekopdracht" left empty. Fixed by removing
+the `conditions:` section and moving the filter into an `if:`/`then: [stop: ...]`
+action, with `marktplaats_search_id: !input marktplaats_search` captured as a plain
+variable (the same, already-proven approach used for `notify_target_id`) - `!input`
+gets converted to a literal value when the automation is saved, so it needs no
+runtime `inputs` object at all. All three scenarios (no filter, filter matches,
+filter doesn't match) were separately worked out with Jinja2 and test data to
+confirm the stop logic, not just reasoned about.
+
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
 - **HA Repair issue on repeated blocking.** Was in the very first design (research
@@ -456,3 +518,10 @@ action rather than full automation. See "Known risks" in [`README.md`](README.md
   `homeassistant.runner`), letting the blueprint be tested against real HA validation
   (including `cv.template` compilation) for the first time instead of only
   structurally.
+- **v0.2.4** - fix: the search filter crashed the automation every time (reported by
+  the user with a real trace). `inputs.marktplaats_search` in the condition simply
+  doesn't exist as a runtime template variable in Home Assistant - fixed by moving
+  the filter into an `if`/`stop` action with `!input` captured as a plain variable
+  (the same proven approach used elsewhere in the blueprint). Also recorded an
+  important caveat on the v0.2.3 validation technique: it catches schema/syntax
+  errors, not template variables that are only missing at execution time.
