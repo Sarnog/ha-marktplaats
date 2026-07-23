@@ -177,6 +177,25 @@ heeft geen runtime-`inputs`-object nodig. Alle drie de scenario's (geen
 filter, filter matcht, filter matcht niet) apart met Jinja2 en testdata
 doorgerekend om de stop-logica te bevestigen, niet alleen geredeneerd.
 
+**v0.2.5 - v0.2.3's naamveld weer verwijderd: loste het eigenlijke probleem
+niet op.** Uitgezocht in zowel de HA-frontend-broncode (TypeScript, apart
+publiek `home-assistant/frontend`-repo, niet in de Python-package) als de
+backend: de naam-popup bij het opslaan (`_promptAutomationAlias` in
+`ha-automation-editor.ts`) is ingebouwd editor-gedrag dat alleen verschijnt
+als de automation op het moment van opslaan nog **helemaal geen** `alias`
+heeft - een blueprint kan dat gedrag niet forceren of aanzetten. Erger nog:
+v0.2.3's eigen `alias: !input automation_name` in de blueprint werkte dit
+juist tegen, want zodra Home Assistant zelf al een naam voor de nieuwe
+automation heeft klaargezet (wat kennelijk gebeurt vóórdat de blueprint-
+substitutie ooit gebeurt), overschrijft die buitenste naam altijd de naam
+die de blueprint zelf zou willen zetten - het veld had dus nooit het
+zichtbare effect dat de bedoeling was, wat de gebruiker ook expliciet zo
+terugmeldde. Opgelost door het `automation_name`-invoerveld en de
+`alias:`-regel volledig te verwijderen; README verwijst nu naar Home
+Assistant's eigen "Naam wijzigen" (⋮-menu, geverifieerd te bestaan in
+`ha-automation-editor.ts` als de `rename`-actie) als de betrouwbare manier
+om een automation een eigen naam te geven.
+
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
 - **HA Repair issue bij herhaalde blokkades.** Stond al in het allereerste ontwerp
@@ -271,6 +290,13 @@ app"-actie in plaats van volledige automatisering. Zie de "Bekende risico's" in
   belangrijke nuance op de v0.2.3-validatietechniek vastgelegd: die vangt
   schema-/syntaxfouten, niet sjabloon-variabelen die pas tijdens uitvoering
   ontbreken.
+- **v0.2.5** - v0.2.3's naamveld (`automation_name`/`alias: !input ...`) weer
+  verwijderd: loste het gemelde probleem niet op. Uitgezocht in zowel de
+  HA-frontend- als backend-broncode dat de naam-popup bij het opslaan
+  ingebouwd editor-gedrag is dat een blueprint niet kan forceren, en dat de
+  blueprint's eigen `alias:` bovendien altijd overschreven werd door een
+  naam die Home Assistant zelf al had klaargezet. README verwijst nu naar
+  de ingebouwde "Naam wijzigen" (⋮-menu) als betrouwbare oplossing.
 
 ## EN
 
@@ -436,6 +462,22 @@ runtime `inputs` object at all. All three scenarios (no filter, filter matches,
 filter doesn't match) were separately worked out with Jinja2 and test data to
 confirm the stop logic, not just reasoned about.
 
+**v0.2.5 - removed v0.2.3's name field again: it didn't fix the actual problem.**
+Researched both the HA frontend source (TypeScript, a separate public
+`home-assistant/frontend` repo, not in the Python package) and the backend: the
+naming popup on save (`_promptAutomationAlias` in `ha-automation-editor.ts`) is
+built-in editor behavior that only appears if the automation has **no** `alias` at
+all at the moment it's saved - a blueprint cannot force or trigger that behavior.
+Worse, v0.2.3's own `alias: !input automation_name` in the blueprint actively worked
+against it: as soon as Home Assistant itself has already set a name for the new
+automation (which apparently happens before blueprint substitution ever runs), that
+outer name always overrides whatever the blueprint itself would set - so the field
+never had the visible effect it was meant to, exactly as the user reported. Fixed by
+removing the `automation_name` input and the `alias:` line entirely; the README now
+points to Home Assistant's own "Rename" (⋮ menu, confirmed to exist in
+`ha-automation-editor.ts` as the `rename` action) as the reliable way to give an
+automation its own name.
+
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
 - **HA Repair issue on repeated blocking.** Was in the very first design (research
@@ -525,3 +567,9 @@ action rather than full automation. See "Known risks" in [`README.md`](README.md
   (the same proven approach used elsewhere in the blueprint). Also recorded an
   important caveat on the v0.2.3 validation technique: it catches schema/syntax
   errors, not template variables that are only missing at execution time.
+- **v0.2.5** - removed v0.2.3's name field (`automation_name`/`alias: !input ...`)
+  again: it didn't fix the reported problem. Researched both the HA frontend and
+  backend source and found that the naming popup on save is built-in editor
+  behavior a blueprint can't force, and that the blueprint's own `alias:` was
+  always overridden anyway by a name Home Assistant had already set. The README
+  now points to the built-in "Rename" (⋮ menu) as the reliable fix.
