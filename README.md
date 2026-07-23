@@ -102,9 +102,10 @@ Er zijn twee manieren, van simpel naar flexibel:
      `title`, `message`, `price`, `location`, `url` en `image_url` als
      variabelen mee, zodat je daar zelf (met foto) een melding mee kunt bouwen.
    - Optioneel te beperken tot één specifieke zoekopdracht.
-   - Je vult ook een **naam** in voor de automation (Home Assistant vraagt dit
-     bij blueprints zelf niet actief - zonder dit veld zouden alle
-     automations van deze blueprint dezelfde naam krijgen).
+   - Home Assistant vraagt bij het opslaan zelf om een naam voor de
+     automation. Krijg je die vraag niet, of hebben meerdere automations van
+     deze blueprint dezelfde naam: geef ze een eigen naam via het **⋮-menu >
+     Naam wijzigen** in de automation-editor.
 3. **Zelf een automation bouwen**, voor volledige controle. Voor elke nieuwe
    advertentie wordt het event `marktplaats_new_listing` gevuurd, met in
    `event_data`: `entry_id`, `query`, `item_id`, `title`, `price_cents`,
@@ -259,9 +260,10 @@ There are two ways, from simple to flexible:
      receives `title`, `message`, `price`, `location`, `url`, and `image_url`
      as variables, so you can build your own notification with a photo there.
    - Optionally restrict it to a single search.
-   - You also fill in a **name** for the automation (Home Assistant doesn't
-     actually prompt for this with blueprints - without this field, every
-     automation from this blueprint would get the same name).
+   - Home Assistant itself prompts you for a name when saving. If it doesn't,
+     or if multiple automations from this blueprint end up with the same
+     name, give them their own name via the **⋮ menu > Rename** in the
+     automation editor.
 3. **Build your own automation**, for full control. For every new listing, the
    `marktplaats_new_listing` event fires, with in `event_data`: `entry_id`,
    `query`, `item_id`, `title`, `price_cents`, `price_type`, `url`,
