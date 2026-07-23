@@ -89,27 +89,19 @@ Er zijn twee manieren, van simpel naar flexibel:
    toelichting). Werkt de opgegeven service niet (meer), dan wordt dat alleen
    als waarschuwing gelogd - de sensor en het event hieronder blijven gewoon
    werken.
-2. **Kant-en-klare blueprint**, voor wie een andere notify-service of meer
-   controle wil. [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
+2. **Kant-en-klare blueprint**, voor wie liever een keuzemenu met toestellen
+   heeft, of de automation verder wil aanpassen.
+   [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
    klik de blueprint-badge bovenaan dit bestand om 'm te importeren. Titel,
    prijs, locatie, link en foto worden automatisch ingevuld, geen sjablonen
    zelf typen nodig:
-   - **Melding-actie** is een tekstveld, geen keuzelijst - vul een klassieke
-     notify-servicenaam in (bv. `mobile_app_telefoon`, net als bij optie 1
-     hierboven, `notify.`-prefix wordt automatisch gestript) of een
-     script-entiteit (bv. `script.stuur_notificatie`). Bewust geen
-     entity-picker: de moderne notify-entities zijn vaak generiek (één
-     gedeelde entity i.p.v. één per toestel) en ondersteunen geen
-     foto-bijlage; de klassieke, per-toestel service wel.
-   - **Extra instellingen** (optioneel): losse sleutel/waarde-paren die
-     worden meegestuurd, bv. `channel: Alarm` voor een ander
-     meldingskanaal/ringtone. Bij een notify-service komen die in het
-     `data`-veld terecht (naast de foto); bij een script als losse
-     variabelen (naast `title`/`message`/`price`/`location`/`url`/
-     `image_url`, handig als je script eigen verplichte velden heeft). Dit
-     veld staat er altijd (Home Assistant-blueprints kunnen geen velden
-     tonen die alleen bij een bepaalde keuze verschijnen), maar is volledig
-     optioneel.
+   - **Telefoon**: een keuzemenu met je toestellen die de HA Companion App
+     draaien (Home Assistant's ingebouwde "device notify"-actie - lost zelf
+     de juiste, klassieke notify-service voor dat toestel op, inclusief
+     foto-ondersteuning).
+   - **Meldingskanaal** (optioneel, Android): naam van een kanaal dat je al
+     in de Companion App gebruikt, voor een eigen ringtone/prioriteit
+     specifiek voor Marktplaats-meldingen.
    - Optioneel te beperken tot één specifieke zoekopdracht.
    - Home Assistant vraagt bij het opslaan zelf om een naam voor de
      automation. Krijg je die vraag niet, of hebben meerdere automations van
@@ -256,26 +248,19 @@ There are two ways, from simple to flexible:
    verified; see [`ROADMAP.md`](ROADMAP.md) for the technical explanation).
    If the configured service stops working, it's only logged as a warning -
    the sensor and the event below keep working regardless.
-2. **Ready-made blueprint**, for a different notify service or more control.
+2. **Ready-made blueprint**, for a device picker instead of typing a service
+   name, or to customize the automation further.
    [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
    click the blueprint badge at the top of this file to import it. Title,
    price, location, link, and photo are filled in automatically - no
    templates to write yourself:
-   - **Notify action** is a text field, not a picker - fill in a classic
-     notify service name (e.g. `mobile_app_phone`, same as option 1 above,
-     the `notify.` prefix is stripped automatically) or a script entity
-     (e.g. `script.send_notification`). Deliberately not an entity picker:
-     modern notify entities are often generic (one shared entity instead of
-     one per device) and don't support a photo attachment; the classic,
-     per-device service does.
-   - **Extra settings** (optional): loose key/value pairs that get sent
-     along, e.g. `channel: Alarm` for a different notification channel/
-     ringtone. For a notify service these land in the `data` field (next to
-     the photo); for a script as separate variables (next to `title`/
-     `message`/`price`/`location`/`url`/`image_url`, handy if your script
-     has its own required fields). This field is always shown (Home
-     Assistant blueprints can't show fields only for a specific choice),
-     but is fully optional.
+   - **Phone**: a picker listing your devices running the HA Companion App
+     (Home Assistant's built-in "device notify" action - resolves the right
+     classic notify service for that device itself, including photo
+     support).
+   - **Notification channel** (optional, Android): the name of a channel
+     you already use in the Companion App, for a dedicated ringtone/
+     priority just for Marktplaats notifications.
    - Optionally restrict it to a single search.
    - Home Assistant itself prompts you for a name when saving. If it doesn't,
      or if multiple automations from this blueprint end up with the same
