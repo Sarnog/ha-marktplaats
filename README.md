@@ -15,7 +15,8 @@
 Een integratie voor Home Assistant om structureel naar items of diensten te zoeken op marktplaats.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
-[![Open your Home Assistant instance and show the blueprint import dialog.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
+**Blueprint (Android):** [![Open your Home Assistant instance and show the blueprint import dialog for the Android notification blueprint.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
+**Blueprint (iOS):** [![Open your Home Assistant instance and show the blueprint import dialog for the iOS notification blueprint.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify_ios.yaml)
 
 **Status: installeerbaar als HACS custom repository; aanmelding bij de standaard HACS-store staat in de reviewwachtrij. Zie [`ROADMAP.md`](ROADMAP.md) voor de volledige planning.**
 
@@ -81,7 +82,9 @@ Er zijn twee manieren, van simpel naar flexibel:
    ná de punt is de servicenaam; een volledig `notify.xxx` mag ook, de
    `notify.`-prefix wordt automatisch gestript). De integratie stuurt dan
    zelf bij elke nieuwe advertentie een melding met titel, prijs, locatie,
-   link én foto. **Let op:** dit moet een klassieke, per-doel notify-service
+   link én foto - tikken op de melding zelf opent de advertentie (in de
+   Marktplaats-app indien geïnstalleerd, anders in de browser). **Let op:**
+   dit moet een klassieke, per-doel notify-service
    zijn (zoals de HA Companion App die registreert), geen notify-entity - de
    moderne, entity-gebaseerde `notify.send_message`-service ondersteunt sinds
    Home Assistant's notify-entity-herontwerp geen foto-bijlage meer
@@ -90,18 +93,27 @@ Er zijn twee manieren, van simpel naar flexibel:
    als waarschuwing gelogd - de sensor en het event hieronder blijven gewoon
    werken.
 2. **Kant-en-klare blueprint**, voor wie liever een keuzemenu met toestellen
-   heeft, of de automation verder wil aanpassen.
-   [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
-   klik de blueprint-badge bovenaan dit bestand om 'm te importeren. Titel,
-   prijs, locatie, link en foto worden automatisch ingevuld, geen sjablonen
-   zelf typen nodig:
+   heeft, of de automation verder wil aanpassen. Titel, prijs, locatie, link
+   en foto worden automatisch ingevuld, geen sjablonen zelf typen nodig, en
+   tikken op de melding zelf opent de advertentie (in de Marktplaats-app
+   indien geïnstalleerd, anders in de browser). Twee varianten, functioneel
+   verder identiek:
+   - [`new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml)
+     (Android) - klik de **Blueprint (Android)**-badge bovenaan dit bestand
+     om 'm te importeren.
+   - [`new_listing_notify_ios.yaml`](blueprints/automation/marktplaats/new_listing_notify_ios.yaml)
+     (iOS) - klik de **Blueprint (iOS)**-badge.
    - **Telefoon**: een keuzemenu met je toestellen die de HA Companion App
      draaien (Home Assistant's ingebouwde "device notify"-actie - lost zelf
      de juiste, klassieke notify-service voor dat toestel op, inclusief
      foto-ondersteuning).
-   - **Meldingskanaal** (optioneel, Android): naam van een kanaal dat je al
-     in de Companion App gebruikt, voor een eigen ringtone/prioriteit
+   - **Meldingskanaal** (optioneel, alleen Android): naam van een kanaal dat
+     je al in de Companion App gebruikt, voor een eigen ringtone/prioriteit
      specifiek voor Marktplaats-meldingen.
+   - **Aangepast geluid** (optioneel, alleen iOS): iOS kent geen
+     meldingskanalen zoals Android; de bestandsnaam van een aangepast
+     geluid dat je al via de Companion App hebt toegevoegd (Instellingen >
+     Meldingen > Geluiden) is het dichtstbijzijnde alternatief.
    - Optioneel te beperken tot één specifieke zoekopdracht.
    - Home Assistant vraagt bij het opslaan zelf om een naam voor de
      automation. Krijg je die vraag niet, of hebben meerdere automations van
@@ -178,7 +190,8 @@ reviewwachtrij. Volledige, actuele planning - inclusief geplande functionaliteit
 A Home Assistant integration for structurally searching for items or services on Marktplaats.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
-[![Open your Home Assistant instance and show the blueprint import dialog.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
+**Blueprint (Android):** [![Open your Home Assistant instance and show the blueprint import dialog for the Android notification blueprint.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
+**Blueprint (iOS):** [![Open your Home Assistant instance and show the blueprint import dialog for the iOS notification blueprint.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify_ios.yaml)
 
 **Status: installable as a HACS custom repository; submission to the default HACS store is in the review queue. See [`ROADMAP.md`](ROADMAP.md) for the full plan.**
 
@@ -240,8 +253,10 @@ There are two ways, from simple to flexible:
    Tools > Actions**, search for "notify"; the part after the dot is the
    service name; a full `notify.xxx` also works, the `notify.` prefix is
    stripped automatically). The integration then sends a notification itself
-   for every new listing, with title, price, location, link, and photo.
-   **Note:** this must be a classic, per-target notify service (like the one
+   for every new listing, with title, price, location, link, and photo -
+   tapping the notification itself opens the listing (in the Marktplaats app
+   if installed, otherwise in the browser). **Note:** this must be a
+   classic, per-target notify service (like the one
    the HA Companion App registers), not a notify entity - the modern,
    entity-based `notify.send_message` service no longer supports a photo
    attachment since Home Assistant's notify-entity redesign (empirically
@@ -249,18 +264,27 @@ There are two ways, from simple to flexible:
    If the configured service stops working, it's only logged as a warning -
    the sensor and the event below keep working regardless.
 2. **Ready-made blueprint**, for a device picker instead of typing a service
-   name, or to customize the automation further.
-   [`blueprints/automation/marktplaats/new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml) -
-   click the blueprint badge at the top of this file to import it. Title,
-   price, location, link, and photo are filled in automatically - no
-   templates to write yourself:
+   name, or to customize the automation further. Title, price, location,
+   link, and photo are filled in automatically - no templates to write
+   yourself - and tapping the notification itself opens the listing (in the
+   Marktplaats app if installed, otherwise in the browser). Two variants,
+   otherwise functionally identical:
+   - [`new_listing_notify.yaml`](blueprints/automation/marktplaats/new_listing_notify.yaml)
+     (Android) - click the **Blueprint (Android)** badge at the top of this
+     file to import it.
+   - [`new_listing_notify_ios.yaml`](blueprints/automation/marktplaats/new_listing_notify_ios.yaml)
+     (iOS) - click the **Blueprint (iOS)** badge.
    - **Phone**: a picker listing your devices running the HA Companion App
      (Home Assistant's built-in "device notify" action - resolves the right
      classic notify service for that device itself, including photo
      support).
-   - **Notification channel** (optional, Android): the name of a channel
-     you already use in the Companion App, for a dedicated ringtone/
-     priority just for Marktplaats notifications.
+   - **Notification channel** (optional, Android only): the name of a
+     channel you already use in the Companion App, for a dedicated
+     ringtone/priority just for Marktplaats notifications.
+   - **Custom sound** (optional, iOS only): iOS has no notification channels
+     like Android; the filename of a custom sound you've already added via
+     the Companion App (Settings > Notifications > Sounds) is the closest
+     equivalent.
    - Optionally restrict it to a single search.
    - Home Assistant itself prompts you for a name when saving. If it doesn't,
      or if multiple automations from this blueprint end up with the same

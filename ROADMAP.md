@@ -342,6 +342,82 @@ groeien voor iets dat toch al direct vanaf `main` gebruikt wordt. Wijzigingen
 aan de blueprint blijven wel gedocumenteerd in dit ROADMAP-bestand, alleen
 niet meer gekoppeld aan een `vX.Y.Z`.
 
+**Tik-op-melding opent de advertentie + nieuwe iOS-blueprint (2026-07-23,
+nog geen versiebump - zie hieronder).** Op gebruikersvraag toegevoegd aan
+`_build_notify_payload()` in `coordinator.py`, de Android-blueprint én een
+nieuwe iOS-blueprint.
+
+**Fout in de eerste versie, gevonden doordat de gebruiker expliciet vroeg of
+dit wel via internet geverifieerd was (terecht - de gebruiker heeft zelf geen
+iOS-toestel om te testen):** de eerste implementatie zette overal simpelweg
+`data.url`, gebaseerd op trainingskennis in plaats van een echte opzoeking.
+Alsnog gecontroleerd via `WebSearch`/`WebFetch` tegen de officiële
+Companion-App-documentatie (`companion.home-assistant.io/docs/notifications/
+notifications-basic`, en de letterlijke bron op
+`github.com/home-assistant/companion.home-assistant/blob/master/docs/
+notifications/basic.md`) - **`url` en `clickAction` zijn twee aparte,
+niet-inwisselbare sleutels: `url` werkt alleen op iOS, Android heeft
+`clickAction` nodig voor exact hetzelfde effect** (letterlijk zo becommentarieerd
+in het officiële voorbeeld: `# iOS URL` / `# Android URL`). De eerste versie
+zou dus op een Android-toestel niets hebben gedaan bij tikken op de melding.
+
+**Fix:** `coordinator.py` weet niet naar welk platform de door de gebruiker
+ingevulde `notify_service` daadwerkelijk uitkomt, dus zet nu **beide**
+sleutels (`url` én `clickAction`) op dezelfde advertentielink - ongeacht het
+platform werkt tikken nu. De Android-blueprint gebruikt nu `clickAction` (was
+foutief `url`); de iOS-blueprint gebruikte al `url` en hoefde niet aangepast.
+Tests in `test_coordinator_helpers.py` bijgewerkt: `data` bevat nu altijd
+`{"url": ..., "clickAction": ...}` (plus `image` indien aanwezig) - de oude
+`test_build_notify_payload_omits_data_without_image` heette zo omdat `data`
+zelf werd weggelaten; heet nu
+`test_build_notify_payload_omits_image_without_picture_but_keeps_url`.
+
+Ook het `notify_sound`/`data.push.sound`-mechanisme van de nieuwe iOS-blueprint
+is op dezelfde manier alsnog geverifieerd (was in de eerste versie ook uit
+trainingskennis, niet uit een opzoeking): bevestigd via
+`companion.home-assistant.io/docs/notifications/notification-sounds` dat een
+custom geluid exact zo wordt aangeroepen (`data.push.sound: "bestandsnaam.wav"`,
+platte string, geen `critical`/`volume`-subvelden gedocumenteerd) - dit deel
+bleek dus wél correct geraden, in tegenstelling tot de `url`-aanname.
+
+Daarnaast een losse iOS-variant van de blueprint toegevoegd,
+[`new_listing_notify_ios.yaml`](blueprints/automation/marktplaats/new_listing_notify_ios.yaml)
+(zelfde trigger/filter-logica, zelfde device-picker). iOS kent geen
+meldingskanalen zoals Android - er is dus geen letterlijk kanaalnaam-veld
+mogelijk; het `notify_sound`-veld (vorige alinea) is de dichtstbijzijnde
+functionele analogie, nog steeds **niet zelf getest op een echt iOS-toestel**
+(alleen tegen de officiële documentatie geverifieerd, niet tegen een live
+apparaat), dus extra aandacht waard bij het verifiëren.
+
+**Validatie van deze wijziging:** `ruff check .` en de volledige `pytest`-suite
+(28 tests, inclusief de bijgewerkte notify-payload-tests) zijn groen, ook na de
+`url`/`clickAction`-fix. Beide blueprint-yaml's laden foutloos met HA's eigen
+yaml-loader (`homeassistant.util.yaml.loader.load_yaml`, incl. `!input`-tags).
+De volledige real-`HomeAssistant`-validatietechniek liep hier, net als bij de
+vorige blueprint-wijziging hierboven, vast op dezelfde `mobile_app`-importmuur
+(`InvalidDeviceAutomationConfig: Integration 'mobile_app' could not be
+loaded`) - dus opnieuw teruggevallen op handmatige verificatie: de gewijzigde
+`data`-templates (beide varianten, met/zonder foto, met/zonder kanaal-of-
+geluid) zijn apart met kale Jinja2 doorgerekend tegen de daadwerkelijke,
+YAML-gevouwen sjabloontekst (na de fix opnieuw gedaan) en produceren in alle
+vier de gevallen de verwachte dict.
+
+**Lering voor toekomstig werk aan HA-notificaties in dit project:** een
+platform-specifieke claim over Companion-App-gedrag (welke `data`-sleutel
+iets doet, welk formaat een sleutel verwacht) mag niet op trainingskennis
+alleen rusten als de gebruiker het zelf niet kan verifiëren op het
+betreffende platform - altijd eerst tegen de officiële
+`companion.home-assistant.io`-documentatie (of de letterlijke bron op
+GitHub) opzoeken, zoals hier alsnog gedaan nadat de gebruiker er expliciet
+naar vroeg.
+
+**Nog geen versiebump/release, bewust:** deze wijziging raakt wél
+`coordinator.py` (niet uitsluitend de blueprint), dus zou volgens het
+versiebeleid hierboven normaal gesproken een `vX.Y.Z`-bump krijgen. Net als
+bij v0.2.0 wordt dat bewust uitgesteld tot de gebruiker het tik-gedrag en de
+nieuwe iOS-blueprint zelf op een echt toestel (vooral iOS, gezien het nog
+ongeteste `push.sound`-mechanisme) heeft geverifieerd.
+
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
 - **HA Repair issue bij herhaalde blokkades.** Stond al in het allereerste ontwerp
@@ -746,6 +822,76 @@ file on the main branch, not at a release asset) - a separate version-history en
 for it would needlessly grow HACS/releases for something that's already used
 directly from `main`. Blueprint changes stay documented in this ROADMAP file, just no
 longer tied to a `vX.Y.Z`.
+
+**Tapping the notification opens the listing + new iOS blueprint (2026-07-23, no
+version bump yet - see below).** At the user's request, added to
+`_build_notify_payload()` in `coordinator.py`, the Android blueprint, and a new iOS
+blueprint.
+
+**Bug in the first version, found because the user explicitly asked whether this was
+actually verified online (rightly so - the user has no iOS device to test with
+themselves):** the first implementation simply set `data.url` everywhere, based on
+training knowledge rather than an actual lookup. Verified after the fact via
+`WebSearch`/`WebFetch` against the official Companion App docs
+(`companion.home-assistant.io/docs/notifications/notifications-basic`, and the literal
+source at `github.com/home-assistant/companion.home-assistant/blob/master/docs/
+notifications/basic.md`) - **`url` and `clickAction` are two separate, non-
+interchangeable keys: `url` only works on iOS, Android needs `clickAction` for the
+exact same effect** (literally commented as such in the official example: `# iOS URL`
+/ `# Android URL`). The first version would therefore have done nothing when tapping
+the notification on an Android device.
+
+**Fix:** `coordinator.py` doesn't know which platform the user's configured
+`notify_service` actually resolves to, so it now sets **both** keys (`url` and
+`clickAction`) to the same listing link - tapping now works regardless of platform.
+The Android blueprint now uses `clickAction` (was incorrectly `url`); the iOS
+blueprint already used `url` and needed no change. Updated the tests in
+`test_coordinator_helpers.py`: `data` now always contains
+`{"url": ..., "clickAction": ...}` (plus `image` if present) - the old
+`test_build_notify_payload_omits_data_without_image` was named for `data` itself being
+omitted; now renamed to
+`test_build_notify_payload_omits_image_without_picture_but_keeps_url`.
+
+Also verified the new iOS blueprint's `notify_sound`/`data.push.sound` mechanism the
+same way after the fact (also from training knowledge in the first version, not a
+lookup): confirmed via `companion.home-assistant.io/docs/notifications/
+notification-sounds` that a custom sound is invoked exactly this way
+(`data.push.sound: "filename.wav"`, a plain string, no documented `critical`/`volume`
+sub-fields) - so this part turned out to be correctly guessed, unlike the `url`
+assumption.
+
+Also added a separate iOS variant of the blueprint,
+[`new_listing_notify_ios.yaml`](blueprints/automation/marktplaats/new_listing_notify_ios.yaml)
+(same trigger/filter logic, same device picker). iOS has no notification channels like
+Android - so there's no literal channel-name field possible; the `notify_sound` field
+(previous paragraph) is the closest functional analogue, still **not tested on a real
+iOS device** (only checked against the official docs, not a live device), so worth
+extra attention when verifying.
+
+**Validation for this change:** `ruff check .` and the full `pytest` suite (28 tests,
+including the updated notify-payload tests) are green, also after the `url`/
+`clickAction` fix. Both blueprint YAML files load without error via HA's own yaml
+loader (`homeassistant.util.yaml.loader.load_yaml`, including `!input` tags). The full
+real-`HomeAssistant` validation technique hit the same `mobile_app` import wall as the
+previous blueprint change above (`InvalidDeviceAutomationConfig: Integration
+'mobile_app' could not be loaded`) - so fell back to manual verification again: the
+changed `data` templates (both variants, with/without photo, with/without
+channel-or-sound) were separately rendered with plain Jinja2 against the actual,
+YAML-folded template text (redone after the fix) and produce the expected dict in all
+four cases.
+
+**Lesson for future HA-notification work in this project:** a platform-specific claim
+about Companion App behavior (which `data` key does what, what format a key expects)
+must not rest on training knowledge alone when the user can't verify it themselves on
+that platform - always look it up against the official
+`companion.home-assistant.io` docs (or the literal source on GitHub) first, as done
+here only after the user explicitly asked.
+
+**No version bump/release yet, deliberately:** this change does touch `coordinator.py`
+(not just the blueprint), so per the versioning policy above it would normally get a
+`vX.Y.Z` bump. As with v0.2.0, that's deliberately deferred until the user has verified
+the tap behavior and the new iOS blueprint themselves on a real device (especially
+iOS, given the still-untested `push.sound` mechanism).
 
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
