@@ -225,6 +225,28 @@ Een Marktplaats-advertentie levert nu eenmaal geen "meldingskanaal" of
 moest kiezen. De blueprint-beschrijving waarschuwt hier nu expliciet voor en
 adviseert een vaste standaardwaarde in het eigen script voor zulke velden.
 
+**Blueprint-uitbreiding (2026-07-23, geen versiebump): "Extra instellingen
+voor je script".** Direct gevraagd door de gebruiker als vervolg op
+bovenstaande: kunnen instelopties voor een eigen script alleen verschijnen
+als er ook echt een script gekozen is, niet bij een gewone
+`notify.mobile_app_*`-actie? Uitgezocht (frontend én backend-schema's): HA
+blueprint-inputs ondersteunen geen voorwaardelijke zichtbaarheid ("toon veld
+B alleen als veld A dit is") - dat bestaat simpelweg niet in het
+inputsysteem. In plaats daarvan een nieuwe, altijd zichtbare maar volledig
+optionele `extra_script_data`-input toegevoegd (`object`-selector, default
+`{}`) waarmee je losse sleutel/waarde-paren (bv. `message_channel: Notify`)
+kunt meegeven die worden samengevoegd met de standaardvariabelen. Technisch
+via Jinja's `dict(..., **extra_script_data)` - geverifieerd dat dit werkt met
+zowel een lege als een gevulde dict (Jinja2 ondersteunt `**`-uitpakken in
+functieaanroepen, net als Python), en dat het samengevoegde resultaat correct
+als `variables:` voor `script.turn_on` terechtkomt (bevestigd met de
+echte-`HomeAssistant`-validatietechniek). Geen sleutelbotsing-bescherming
+ingebouwd - een sleutel in `extra_script_data` die al door de blueprint zelf
+gebruikt wordt (`title`, `message`, `price`, `location`, `url`, `image_url`)
+zou een Jinja-fout geven; dat risico is beperkt genoeg om niet extra tegen te
+beveiligen, en staat impliciet in de invoerbeschrijving door de vaste namen
+te noemen.
+
 **Nieuw versiebeleid voor deze blueprint (afgesproken met de gebruiker,
 2026-07-23): wijzigingen die uitsluitend de blueprint raken (niet
 `custom_components/marktplaats/*.py`) krijgen geen versiebump/tag/release
@@ -542,6 +564,24 @@ error here. A Marktplaats listing simply doesn't supply a "notification channel"
 "preferred recipient" - that was always something the user's own script had to
 decide. The blueprint description now explicitly warns about this and recommends a
 fixed default value in the user's own script for such fields.
+
+**Blueprint addition (2026-07-23, no version bump): "Extra settings for your
+script".** Directly requested by the user as a follow-up to the above: can
+custom-script settings only appear when a script is actually picked, not for a
+plain `notify.mobile_app_*` action? Researched (frontend and backend schemas): HA
+blueprint inputs don't support conditional visibility ("show field B only if field A
+is this") - that simply doesn't exist in the input system. Added a new, always
+visible but fully optional `extra_script_data` input instead (`object` selector,
+default `{}`) that lets you supply extra key/value pairs (e.g. `message_channel:
+Notify`) merged into the standard variables. Technically via Jinja's `dict(...,
+**extra_script_data)` - verified to work with both an empty and a filled dict
+(Jinja2 supports `**` unpacking in function calls, same as Python), and that the
+merged result correctly ends up as `variables:` for `script.turn_on` (confirmed with
+the real-`HomeAssistant` validation technique). No key-collision protection built in
+- a key in `extra_script_data` that the blueprint itself already uses (`title`,
+`message`, `price`, `location`, `url`, `image_url`) would cause a Jinja error; that
+risk is small enough not to guard against explicitly, and is implicitly covered by
+naming those fixed keys in the input's own description.
 
 **New versioning policy for this blueprint (agreed with the user, 2026-07-23):
 changes that only touch the blueprint (not `custom_components/marktplaats/*.py`) no
