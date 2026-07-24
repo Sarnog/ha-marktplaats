@@ -14,8 +14,8 @@
 
 Een integratie voor Home Assistant om structureel naar items of diensten te zoeken op marktplaats.
 
-<!-- Tabel i.p.v. losse regels zodat de labels en de knoppen in twee nette,
-     uitgelijnde kolommen staan die zich op elk scherm aanpassen. -->
+<!-- Tabel zodat de labels en de knoppen in twee nette, uitgelijnde kolommen
+     staan die zich op elk scherm aanpassen. -->
 <table>
   <tr>
     <td>Integratie toevoegen:</td>
@@ -31,14 +31,14 @@ Een integratie voor Home Assistant om structureel naar items of diensten te zoek
   </tr>
 </table>
 
-**Status: installeerbaar als HACS custom repository; aanmelding bij de standaard HACS-store staat in de reviewwachtrij. Zie [`ROADMAP.md`](ROADMAP.md) voor de volledige planning.**
+**Te installeren via HACS als custom repository, of handmatig - zie [Installatie](#installatie).**
 
 ### Wat doet dit
 
 Je stelt een of meer zoekopdrachten in (elk een aparte Home Assistant-integratie-entry).
 Zodra er een nieuwe advertentie op marktplaats.nl verschijnt die aan een zoekopdracht
 voldoet, krijg je dat te weten via een event op de HA event bus - zo bouw je zelf een
-notificatie-automation naar je telefoon, zoals oorspronkelijk gevraagd.
+notificatie-automation naar je telefoon.
 
 Alleen de zoekterm is verplicht. Optioneel: minimum-/maximumprijs, conditie, categorie,
 een zoekradius (standaard je Home Assistant-thuislocatie, met een straal in km) en het
@@ -52,9 +52,7 @@ aanroept. Zie "Bekende risico's" hieronder.
 
 **Via HACS** (aanbevolen): klik de HACS-badge bovenaan dit bestand, of voeg deze repository
 handmatig toe als **custom repository** in HACS (HACS > drie puntjes > Aangepaste
-repositories > deze GitHub-URL, categorie "Integratie"). Dit is nog geen opname in de
-standaard HACS-store zelf (dat vereist een aparte aanmelding/review bij HACS), maar
-werkt verder identiek.
+repositories > deze GitHub-URL, categorie "Integratie").
 
 **Handmatig**, als alternatief:
 
@@ -75,9 +73,8 @@ voor elk item of elke dienst waar je apart een melding van wilt.
   zelf). Zet dit aan om alleen op de titel te matchen: preciezere, maar minder treffers.
 - **Postcode** - laat leeg om automatisch je Home Assistant-thuislocatie te gebruiken
   (via reverse-geocoding met OpenStreetMap Nominatim, want Marktplaats' API filtert
-  alleen daadwerkelijk op afstand met een postcode, niet met lat/lon - empirisch
-  geverifieerd tijdens de PoC-fase). Vul zelf een postcode in om een andere locatie te
-  doorzoeken.
+  alleen daadwerkelijk op afstand met een postcode, niet met lat/lon). Vul zelf een
+  postcode in om een andere locatie te doorzoeken.
 - **Straal in km**, **min-/maximumprijs**, **conditie**, **categorie-ID's** - allemaal
   optioneel.
 - **Zoekinterval in minuten** - minimaal 15, wel trager instelbaar. Bij het opslaan wordt
@@ -90,7 +87,7 @@ keer overspoeld wordt met "nieuwe" meldingen voor advertenties die er al stonden
 
 ### Meldingen ontvangen
 
-Er zijn twee manieren, van simpel naar flexibel:
+Er zijn drie manieren, van simpel naar flexibel:
 
 1. **Ingebouwd, geen automation nodig.** Vul bij het (her)instellen van een
    zoekopdracht een **notify-servicenaam** in (bv. `mobile_app_telefoon` -
@@ -100,14 +97,12 @@ Er zijn twee manieren, van simpel naar flexibel:
    zelf bij elke nieuwe advertentie een melding met titel, prijs, locatie,
    link én foto - tikken op de melding zelf opent de advertentie (in de
    Marktplaats-app indien geïnstalleerd, anders in de browser). **Let op:**
-   dit moet een klassieke, per-doel notify-service
-   zijn (zoals de HA Companion App die registreert), geen notify-entity - de
-   moderne, entity-gebaseerde `notify.send_message`-service ondersteunt sinds
-   Home Assistant's notify-entity-herontwerp geen foto-bijlage meer
-   (empirisch geverifieerd; zie [`ROADMAP.md`](ROADMAP.md) voor de technische
-   toelichting). Werkt de opgegeven service niet (meer), dan wordt dat alleen
-   als waarschuwing gelogd - de sensor en het event hieronder blijven gewoon
-   werken.
+   dit moet een klassieke, per-doel notify-service zijn (zoals de HA Companion
+   App die registreert), geen notify-entity: alleen zo'n klassieke service kan
+   de foto als bijlage meesturen (de entity-gebaseerde `notify.send_message`
+   ondersteunt geen foto-bijlage). Werkt de opgegeven service niet, dan wordt
+   dat alleen als waarschuwing gelogd - de sensor en het event hieronder
+   blijven gewoon werken.
 2. **Kant-en-klare blueprint**, voor wie liever een keuzemenu met toestellen
    heeft, of de automation verder wil aanpassen. Titel, prijs, locatie, link
    en foto worden automatisch ingevuld, geen sjablonen zelf typen nodig, en
@@ -164,21 +159,11 @@ een dashboard.
   lat/lon om te zetten naar een postcode; dit gebeurt alleen bij het instellen/
   herconfigureren van een zoekopdracht, niet bij elke poll.
 
-### Testdekking
+### Zonder Home Assistant testen
 
-Zie [`tests/README.md`](tests/README.md): de pure logica (API-parameters, prijsafronding,
-postcode-resolutie, unique-id-logica) is met `pytest` getest. De HA-runtime-afhankelijke
-delen (config flow, coordinator, sensor) zijn zorgvuldig handmatig gereviewd tegen de
-daadwerkelijk geïnstalleerde Home Assistant-broncode, maar niet automatisch getest op dit
-Windows-ontwikkelsysteem (`pytest-homeassistant-custom-component` vereist Unix-only
-stdlib-modules). Test dit gedrag dus ook zelf in een echte Home Assistant-instantie.
-
-### Proof-of-concept script
-
-`poc/search.py` was het losse onderzoeksscript van stap 1, gebruikt om te bevestigen dat
-het Marktplaats-endpoint sowieso bereikbaar en betrouwbaar is voordat dit werd ingebouwd
-in de echte integratie hierboven. Nog steeds bruikbaar als je zonder Home
-Assistant wil testen; zie de instructies eronder.
+`poc/search.py` is een losstaand script om de Marktplaats-zoekopdracht rechtstreeks
+vanaf de opdrachtregel te testen, zonder Home Assistant - handig om snel een
+zoekterm/filters uit te proberen.
 
 ```bash
 cd poc
@@ -188,13 +173,11 @@ python search.py --once          # eenmalige test
 python search.py                 # blijft draaien, elke INTERVAL_MINUTES (min. 15)
 ```
 
-### Roadmap
+### Ideeën en geschiedenis
 
-Stap 1 (proof-of-concept), stap 2 (custom_component) en stap 3 (HACS custom
-repository) zijn af; stap 4 (aanmelding standaard HACS-store) staat in de
-reviewwachtrij. Volledige, actuele planning - inclusief geplande functionaliteit
-(rijkere meldingen met titel/prijs/locatie) en toekomstideeën - staat in
-[`ROADMAP.md`](ROADMAP.md), dat bij elke wijziging wordt bijgewerkt.
+Toekomstige uitbreidingen en ideeën staan in [`ROADMAP.md`](ROADMAP.md). De
+wijzigingsgeschiedenis per versie staat in de
+[release notes](https://github.com/Sarnog/ha-marktplaats/releases).
 
 
 ---
@@ -205,8 +188,8 @@ reviewwachtrij. Volledige, actuele planning - inclusief geplande functionaliteit
 
 A Home Assistant integration for structurally searching for items or services on Marktplaats.
 
-<!-- Table instead of separate lines so the labels and the buttons sit in two
-     neat, aligned columns that adapt to any screen size. -->
+<!-- Table so the labels and the buttons sit in two neat, aligned columns
+     that adapt to any screen size. -->
 <table>
   <tr>
     <td>Add integration:</td>
@@ -222,14 +205,14 @@ A Home Assistant integration for structurally searching for items or services on
   </tr>
 </table>
 
-**Status: installable as a HACS custom repository; submission to the default HACS store is in the review queue. See [`ROADMAP.md`](ROADMAP.md) for the full plan.**
+**Install via HACS as a custom repository, or manually - see [Installation](#installation).**
 
 ### What this does
 
 You configure one or more searches (each its own Home Assistant integration entry). As
 soon as a new listing appears on marktplaats.nl matching a search, you're notified via
 an event on the HA event bus - build your own notification automation to your phone from
-there, as originally requested.
+there.
 
 Only the search term is required. Optional: minimum/maximum price, condition, category,
 a search radius (defaults to your Home Assistant home location, radius in km), and the
@@ -243,9 +226,7 @@ risks" below.
 
 **Via HACS** (recommended): click the HACS badge at the top of this file, or add this
 repository manually as a **custom repository** in HACS (HACS > three dots > Custom
-repositories > this GitHub URL, category "Integration"). This isn't inclusion in the
-default HACS store itself yet (that requires a separate submission/review with HACS),
-but otherwise works identically.
+repositories > this GitHub URL, category "Integration").
 
 **Manually**, as an alternative:
 
@@ -265,8 +246,8 @@ or service you want a separate notification for.
   marktplaats.nl itself). Enable this to match on the title only: tighter, but fewer hits.
 - **Postcode** - leave empty to automatically use your Home Assistant home location (via
   reverse geocoding with OpenStreetMap Nominatim, since Marktplaats' API only actually
-  filters by distance with a postcode, not lat/lon - empirically verified during the PoC
-  phase). Fill in your own postcode to search around a different location.
+  filters by distance with a postcode, not lat/lon). Fill in your own postcode to search
+  around a different location.
 - **Radius in km**, **min/max price**, **condition**, **category IDs** - all optional.
 - **Search interval in minutes** - 15 minimum, can be set slower. Saving runs a live test
   search to confirm the combination works.
@@ -278,7 +259,7 @@ listings that were already there).
 
 ### Getting notified
 
-There are two ways, from simple to flexible:
+There are three ways, from simple to flexible:
 
 1. **Built in, no automation needed.** When (re)configuring a search, fill in a
    **notify service name** (e.g. `mobile_app_phone` - found under **Developer
@@ -288,13 +269,12 @@ There are two ways, from simple to flexible:
    for every new listing, with title, price, location, link, and photo -
    tapping the notification itself opens the listing (in the Marktplaats app
    if installed, otherwise in the browser). **Note:** this must be a
-   classic, per-target notify service (like the one
-   the HA Companion App registers), not a notify entity - the modern,
-   entity-based `notify.send_message` service no longer supports a photo
-   attachment since Home Assistant's notify-entity redesign (empirically
-   verified; see [`ROADMAP.md`](ROADMAP.md) for the technical explanation).
-   If the configured service stops working, it's only logged as a warning -
-   the sensor and the event below keep working regardless.
+   classic, per-target notify service (like the one the HA Companion App
+   registers), not a notify entity: only such a classic service can attach
+   the photo (the entity-based `notify.send_message` service doesn't support
+   a photo attachment). If the configured service stops working, it's only
+   logged as a warning - the sensor and the event below keep working
+   regardless.
 2. **Ready-made blueprint**, for a device picker instead of typing a service
    name, or to customize the automation further. Title, price, location,
    link, and photo are filled in automatically - no templates to write
@@ -347,22 +327,10 @@ poll plus the latest few new listings - handy for a dashboard.
   lat/lon to a postcode; this only happens when setting up/reconfiguring a search, not
   on every poll.
 
-### Test coverage
+### Testing without Home Assistant
 
-See [`tests/README.md`](tests/README.md): the pure logic (API parameters, price
-rounding, postcode resolution, unique-id logic) is tested with `pytest`. The
-HA-runtime-dependent parts (config flow, coordinator, sensor) were carefully reviewed
-manually against the actually-installed Home Assistant source, but not automatically
-tested on this Windows development machine (`pytest-homeassistant-custom-component`
-requires Unix-only stdlib modules). So also verify this behavior yourself on a real
-Home Assistant instance.
-
-### Proof-of-concept script
-
-`poc/search.py` was the standalone research script from step 1, used to confirm the
-Marktplaats endpoint is reachable and reliable at all before it was built into the real
-integration above. Still usable if you want to test without Home Assistant; see the
-instructions below.
+`poc/search.py` is a standalone script to test the Marktplaats search directly from the
+command line, without Home Assistant - handy for quickly trying out a search term/filters.
 
 ```bash
 cd poc
@@ -372,10 +340,7 @@ python search.py --once          # one-off test
 python search.py                 # runs continuously, every INTERVAL_MINUTES (min. 15)
 ```
 
-### Roadmap
+### Ideas and history
 
-Step 1 (proof-of-concept), step 2 (custom_component), and step 3 (HACS custom
-repository) are done; step 4 (default HACS store submission) is in the review queue.
-The complete, current plan - including planned functionality (richer notifications
-with title/price/location) and future ideas - lives in [`ROADMAP.md`](ROADMAP.md),
-which gets updated on every change.
+Future additions and ideas live in [`ROADMAP.md`](ROADMAP.md). The per-version change
+history is in the [release notes](https://github.com/Sarnog/ha-marktplaats/releases).
