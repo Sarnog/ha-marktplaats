@@ -39,18 +39,25 @@ def build_search_params(
     radius_km: int,
     *,
     limit: int,
+    title_only: bool = False,
     min_price: float | None = None,
     max_price: float | None = None,
     condition: str | None = None,
     l1_category_id: int | None = None,
     l2_category_id: int | None = None,
 ) -> dict[str, Any]:
-    """Bouwt de querystring-parameters voor een Marktplaats-zoekopdracht."""
+    """Bouwt de querystring-parameters voor een Marktplaats-zoekopdracht.
+
+    `title_only=True` beperkt de zoekterm tot alleen de advertentietitel;
+    standaard (False) matcht Marktplaats zowel de titel als de advertentietekst
+    (searchInTitleAndDescription - dezelfde optie als de "Ook in advertentietekst
+    zoeken"-checkbox op marktplaats.nl zelf).
+    """
     params: dict[str, Any] = {
         "limit": str(limit),
         "offset": "0",
         "query": query,
-        "searchInTitleAndDescription": "true",
+        "searchInTitleAndDescription": "false" if title_only else "true",
         "viewOptions": "list-view",
         "distanceMeters": str(radius_km * 1000),
         "postcode": postcode,
@@ -84,6 +91,7 @@ async def fetch_listings(
     radius_km: int,
     *,
     limit: int,
+    title_only: bool = False,
     min_price: float | None = None,
     max_price: float | None = None,
     condition: str | None = None,
@@ -109,6 +117,7 @@ async def fetch_listings(
         postcode,
         radius_km,
         limit=limit,
+        title_only=title_only,
         min_price=min_price,
         max_price=max_price,
         condition=condition,

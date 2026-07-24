@@ -6,6 +6,7 @@
         "description": "Alleen de zoekterm is verplicht. Laat de postcode leeg om je Home Assistant-thuislocatie te gebruiken.",
         "data": {
           "query": "Zoekterm",
+          "title_only": "Alleen in de titel zoeken (standaard: ook in de advertentietekst)",
           "name": "Naam (optioneel, standaard de zoekterm)",
           "postcode": "Postcode (optioneel, standaard je HA-thuislocatie)",
           "radius_km": "Straal in km",
@@ -23,6 +24,7 @@
         "description": "Alleen de zoekterm is verplicht. Laat de postcode leeg om je Home Assistant-thuislocatie te gebruiken.",
         "data": {
           "query": "Zoekterm",
+          "title_only": "Alleen in de titel zoeken (standaard: ook in de advertentietekst)",
           "name": "Naam (optioneel, standaard de zoekterm)",
           "postcode": "Postcode (optioneel, standaard je HA-thuislocatie)",
           "radius_km": "Straal in km",

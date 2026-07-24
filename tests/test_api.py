@@ -75,6 +75,22 @@ def test_build_search_params_only_required_fields() -> None:
     assert "l2CategoryId" not in params
 
 
+def test_build_search_params_defaults_to_title_and_description() -> None:
+    # Zonder title_only zoekt Marktplaats in titel EN advertentietekst - het
+    # bredere, historische standaardgedrag (searchInTitleAndDescription=true).
+    params = api.build_search_params("televisie", "1012JS", 25, limit=30)
+
+    assert params["searchInTitleAndDescription"] == "true"
+
+
+def test_build_search_params_title_only_restricts_to_title() -> None:
+    # title_only=True beperkt tot alleen de advertentietitel; dit is exact de
+    # "Ook in advertentietekst zoeken"-optie op marktplaats.nl (uitgevinkt).
+    params = api.build_search_params("televisie", "1012JS", 25, limit=30, title_only=True)
+
+    assert params["searchInTitleAndDescription"] == "false"
+
+
 def test_build_search_params_price_rounding_avoids_float_truncation() -> None:
     # 19.99 * 100 == 1998.9999999999998 in floating point - round(), not
     # int(), must be used or this becomes 1998 instead of 1999 cents.

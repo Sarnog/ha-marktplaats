@@ -6,6 +6,7 @@
         "description": "Only the search term is required. Leave the postcode empty to use your Home Assistant home location.",
         "data": {
           "query": "Search term",
+          "title_only": "Search in the title only (default: also search the listing description)",
           "name": "Name (optional, defaults to the search term)",
           "postcode": "Postcode (optional, defaults to your HA home location)",
           "radius_km": "Radius in km",
@@ -23,6 +24,7 @@
         "description": "Only the search term is required. Leave the postcode empty to use your Home Assistant home location.",
         "data": {
           "query": "Search term",
+          "title_only": "Search in the title only (default: also search the listing description)",
           "name": "Name (optional, defaults to the search term)",
           "postcode": "Postcode (optional, defaults to your HA home location)",
           "radius_km": "Radius in km",
