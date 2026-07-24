@@ -6,3 +6,6 @@ venv/
 # Persoonlijke configuratie (postcode, etc.) - never commit
 poc/config.py
 poc/seen_listings.json
+
+# Interne samenwerkingsafspraken voor de agent - lokaal houden, niet publiek
+AGENTS.md
