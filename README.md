@@ -14,9 +14,22 @@
 
 Een integratie voor Home Assistant om structureel naar items of diensten te zoeken op marktplaats.
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
-**Blueprint (Android):** [![Open your Home Assistant instance and show the blueprint import dialog for the Android notification blueprint.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
-**Blueprint (iOS):** [![Open your Home Assistant instance and show the blueprint import dialog for the iOS notification blueprint.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify_ios.yaml)
+<!-- Tabel i.p.v. losse regels zodat de labels en de knoppen in twee nette,
+     uitgelijnde kolommen staan die zich op elk scherm aanpassen. -->
+<table>
+  <tr>
+    <td>Integratie toevoegen:</td>
+    <td><a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&amp;repository=ha-marktplaats&amp;category=integration"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store."></a></td>
+  </tr>
+  <tr>
+    <td>Blueprint (Android):</td>
+    <td><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog for the Android notification blueprint."></a></td>
+  </tr>
+  <tr>
+    <td>Blueprint (iOS):</td>
+    <td><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify_ios.yaml"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog for the iOS notification blueprint."></a></td>
+  </tr>
+</table>
 
 **Status: installeerbaar als HACS custom repository; aanmelding bij de standaard HACS-store staat in de reviewwachtrij. Zie [`ROADMAP.md`](ROADMAP.md) voor de volledige planning.**
 
@@ -57,6 +70,9 @@ Elke zoekopdracht is een aparte integratie-entry - voeg de integratie dus opnieu
 voor elk item of elke dienst waar je apart een melding van wilt.
 
 - **Zoekterm** - verplicht, de rest is optioneel.
+- **Alleen in de titel zoeken** - standaard doorzoekt Marktplaats zowel de titel als de
+  advertentietekst (dezelfde "Ook in advertentietekst zoeken"-optie als op marktplaats.nl
+  zelf). Zet dit aan om alleen op de titel te matchen: preciezere, maar minder treffers.
 - **Postcode** - laat leeg om automatisch je Home Assistant-thuislocatie te gebruiken
   (via reverse-geocoding met OpenStreetMap Nominatim, want Marktplaats' API filtert
   alleen daadwerkelijk op afstand met een postcode, niet met lat/lon - empirisch
@@ -189,9 +205,22 @@ reviewwachtrij. Volledige, actuele planning - inclusief geplande functionaliteit
 
 A Home Assistant integration for structurally searching for items or services on Marktplaats.
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&repository=ha-marktplaats&category=integration)
-**Blueprint (Android):** [![Open your Home Assistant instance and show the blueprint import dialog for the Android notification blueprint.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml)
-**Blueprint (iOS):** [![Open your Home Assistant instance and show the blueprint import dialog for the iOS notification blueprint.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify_ios.yaml)
+<!-- Table instead of separate lines so the labels and the buttons sit in two
+     neat, aligned columns that adapt to any screen size. -->
+<table>
+  <tr>
+    <td>Add integration:</td>
+    <td><a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=Sarnog&amp;repository=ha-marktplaats&amp;category=integration"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store."></a></td>
+  </tr>
+  <tr>
+    <td>Blueprint (Android):</td>
+    <td><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify.yaml"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog for the Android notification blueprint."></a></td>
+  </tr>
+  <tr>
+    <td>Blueprint (iOS):</td>
+    <td><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FSarnog%2Fha-marktplaats%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fmarktplaats%2Fnew_listing_notify_ios.yaml"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog for the iOS notification blueprint."></a></td>
+  </tr>
+</table>
 
 **Status: installable as a HACS custom repository; submission to the default HACS store is in the review queue. See [`ROADMAP.md`](ROADMAP.md) for the full plan.**
 
@@ -231,6 +260,9 @@ Each search is a separate integration entry - add the integration again for each
 or service you want a separate notification for.
 
 - **Search term** - required, everything else is optional.
+- **Search in the title only** - by default Marktplaats searches both the title and the
+  listing description (the same "Also search the listing description" option as on
+  marktplaats.nl itself). Enable this to match on the title only: tighter, but fewer hits.
 - **Postcode** - leave empty to automatically use your Home Assistant home location (via
   reverse geocoding with OpenStreetMap Nominatim, since Marktplaats' API only actually
   filters by distance with a postcode, not lat/lon - empirically verified during the PoC

@@ -411,12 +411,52 @@ betreffende platform - altijd eerst tegen de officiële
 GitHub) opzoeken, zoals hier alsnog gedaan nadat de gebruiker er expliciet
 naar vroeg.
 
-**Nog geen versiebump/release, bewust:** deze wijziging raakt wél
-`coordinator.py` (niet uitsluitend de blueprint), dus zou volgens het
-versiebeleid hierboven normaal gesproken een `vX.Y.Z`-bump krijgen. Net als
-bij v0.2.0 wordt dat bewust uitgesteld tot de gebruiker het tik-gedrag en de
-nieuwe iOS-blueprint zelf op een echt toestel (vooral iOS, gezien het nog
-ongeteste `push.sound`-mechanisme) heeft geverifieerd.
+**Uitgebracht in v0.3.0 (2026-07-24), gebundeld met de titel-only-optie.** De
+gebruiker koos er expliciet voor deze wijziging alsnog mee uit te brengen, ondanks
+dat het tik-gedrag en de nieuwe iOS-blueprint (vooral iOS, gezien het nog ongeteste
+`push.sound`-mechanisme) nog niet op een echt toestel geverifieerd zijn - verifieer
+dat na de update dus alsnog zelf.
+
+**Zoeken alleen in de titel i.p.v. titel + advertentietekst (2026-07-24, direct
+gevraagd door de gebruiker; nog geen versiebump - zie hieronder).** Nieuw optioneel
+schakelveld `title_only` (standaard uit) in de config flow. Tot nu toe stuurde
+`build_search_params()` altijd `searchInTitleAndDescription=true` mee - Marktplaats
+matchte de zoekterm dus zowel tegen de titel als tegen de advertentietekst. Met de
+schakelaar aan wordt `searchInTitleAndDescription=false` verstuurd, wat de zoekterm
+tot alleen de titel beperkt - strakkere, maar minder treffers. Dit is exact dezelfde
+"Ook in advertentietekst zoeken"-optie die marktplaats.nl zelf in de zoekbalk toont.
+
+- **Standaard bewust uit** (titel + advertentietekst) om het gedrag van bestaande
+  zoekopdrachten niet te veranderen; bestaande config entries hebben het veld niet in
+  hun opgeslagen data, dus `entry_data.get(CONF_TITLE_ONLY, False)` valt terug op het
+  oude gedrag.
+- **Onderdeel van de `unique_id`** (in `_build_unique_id`): "fiets" in alleen de titel
+  is een andere zoekopdracht dan "fiets" in titel + advertentietekst, dus beide mogen
+  naast elkaar bestaan. Gevolg: als je een bestaande zoekopdracht herconfigureert,
+  verschuift de unique_id eenmalig (er komt `|False` bij) en reset de
+  "geziene advertenties"-opslag zich netjes via de bestaande reconfigure-logica - geen
+  vloedgolf aan valse "nieuwe" meldingen, want dat pad legt een schone baseline aan.
+- **Doorgegeven in `api.build_search_params`/`fetch_listings` (nieuw keyword
+  `title_only=False`), de coordinator-poll én de config-flow-testcall**, zodat de
+  live test bij het opslaan dezelfde zoekscope gebruikt als de echte polls.
+- **Testdekking:** `test_build_search_params_defaults_to_title_and_description`
+  (`=true`), `test_build_search_params_title_only_restricts_to_title` (`=false`) en
+  `test_build_unique_id_differs_when_title_only_differs`, plus de bestaande
+  schema-test uitgebreid met `result["title_only"] is False`.
+
+**Eerlijk over de verificatiestatus:** de *semantiek* van
+`searchInTitleAndDescription=false` (= alleen titel) is afgeleid van de gelijknamige
+checkbox op marktplaats.nl zelf, niet in dit project apart live geverifieerd zoals de
+condities/`totalResultCount` destijds wel zijn. De param-naam en het website-gedrag
+laten weinig twijfel, maar het blijft de moeite waard om zelf één keer een zoekterm
+te proberen die vooral in advertentieteksten voorkomt, met en zonder de schakelaar,
+en het aantal treffers te vergelijken.
+
+**Uitgebracht in v0.3.0 (2026-07-24).** Na expliciete afweging koos de gebruiker
+ervoor deze titel-only-optie samen met de nog-ongeverifieerde tik-op-melding/
+iOS-blueprint-wijziging hieronder in één release te bundelen. Het tik-gedrag en de
+iOS-blueprint zijn daarmee wél uitgebracht maar nog steeds niet op een echt toestel
+geverifieerd - zie die entry.
 
 ### Gepland - ideeën van Claude (nog niet besproken/goedgekeurd - graag prioriteren of afkeuren)
 
@@ -519,6 +559,16 @@ app"-actie in plaats van volledige automatisering. Zie de "Bekende risico's" in
   blueprint's eigen `alias:` bovendien altijd overschreven werd door een
   naam die Home Assistant zelf al had klaargezet. README verwijst nu naar
   de ingebouwde "Naam wijzigen" (⋮-menu) als betrouwbare oplossing.
+- **v0.3.0** - nieuw: optie **"Alleen in de titel zoeken"** in de config flow
+  (schakelaar, standaard uit) - stuurt `searchInTitleAndDescription=false` zodat de
+  zoekterm alleen tegen de advertentietitel matcht i.p.v. titel + advertentietekst.
+  Onderdeel van de `unique_id`, zodat beide varianten van dezelfde zoekterm naast
+  elkaar mogen bestaan. In dezelfde release gebundeld, op expliciete keuze van de
+  gebruiker: de eerder uitgestelde tik-op-melding-wijziging (`coordinator.py` zet nu
+  zowel `url` als `clickAction`) en de nieuwe iOS-blueprint - die twee zijn nog niet
+  op een echt toestel geverifieerd (zie de betreffende entries hierboven). Ook de
+  README-banners staan nu in een uitgelijnde tabel (label + knop in twee nette
+  kolommen, responsive).
 
 ## EN
 
@@ -887,11 +937,50 @@ that platform - always look it up against the official
 `companion.home-assistant.io` docs (or the literal source on GitHub) first, as done
 here only after the user explicitly asked.
 
-**No version bump/release yet, deliberately:** this change does touch `coordinator.py`
-(not just the blueprint), so per the versioning policy above it would normally get a
-`vX.Y.Z` bump. As with v0.2.0, that's deliberately deferred until the user has verified
-the tap behavior and the new iOS blueprint themselves on a real device (especially
-iOS, given the still-untested `push.sound` mechanism).
+**Released in v0.3.0 (2026-07-24), bundled with the title-only option.** The user
+explicitly chose to release this change after all, even though the tap behavior and
+the new iOS blueprint (especially iOS, given the still-untested `push.sound`
+mechanism) aren't verified on a real device yet - so still verify that yourself after
+updating.
+
+**Search in the title only instead of title + listing description (2026-07-24,
+directly requested by the user; no version bump yet - see below).** New optional
+`title_only` toggle (off by default) in the config flow. Until now
+`build_search_params()` always sent `searchInTitleAndDescription=true` - so Marktplaats
+matched the search term against both the title and the listing description. With the
+toggle on it sends `searchInTitleAndDescription=false`, restricting the search term to
+the title only - tighter, but fewer hits. This is exactly the same "Also search the
+listing description" option marktplaats.nl itself shows in the search bar.
+
+- **Deliberately off by default** (title + description) so existing searches don't
+  change behavior; existing config entries don't have the field in their stored data,
+  so `entry_data.get(CONF_TITLE_ONLY, False)` falls back to the old behavior.
+- **Part of the `unique_id`** (in `_build_unique_id`): "fiets" in the title only is a
+  different search than "fiets" in title + description, so both may coexist.
+  Consequence: reconfiguring an existing search shifts its unique_id once (`|False` is
+  appended) and cleanly resets the "seen listings" storage via the existing reconfigure
+  logic - no flood of false "new" notifications, since that path establishes a fresh
+  baseline.
+- **Passed through `api.build_search_params`/`fetch_listings` (new keyword
+  `title_only=False`), the coordinator poll, and the config-flow test call**, so the
+  live save-time test uses the same search scope as the real polls.
+- **Test coverage:** `test_build_search_params_defaults_to_title_and_description`
+  (`=true`), `test_build_search_params_title_only_restricts_to_title` (`=false`), and
+  `test_build_unique_id_differs_when_title_only_differs`, plus the existing schema test
+  extended with `result["title_only"] is False`.
+
+**Honest about the verification status:** the *semantics* of
+`searchInTitleAndDescription=false` (= title only) are derived from the identically
+named checkbox on marktplaats.nl itself, not separately verified live in this project
+the way the conditions/`totalResultCount` were at the time. The parameter name and the
+website's behavior leave little doubt, but it's still worth trying, once, a search term
+that mostly appears inside listing descriptions, with and without the toggle, and
+comparing the hit counts.
+
+**Released in v0.3.0 (2026-07-24).** After weighing it explicitly, the user chose to
+bundle this title-only option together with the still-unverified tap-to-open/iOS
+blueprint change below into a single release. The tap behavior and the iOS blueprint
+are thereby released but still not verified on a real device - see that entry.
 
 ### Planned - Claude's own ideas (not yet discussed/approved - please prioritize or reject)
 
@@ -988,3 +1077,12 @@ action rather than full automation. See "Known risks" in [`README.md`](README.md
   behavior a blueprint can't force, and that the blueprint's own `alias:` was
   always overridden anyway by a name Home Assistant had already set. The README
   now points to the built-in "Rename" (⋮ menu) as the reliable fix.
+- **v0.3.0** - new: a **"Search in the title only"** option in the config flow
+  (toggle, off by default) - sends `searchInTitleAndDescription=false` so the search
+  term matches against the listing title only instead of title + description. Part of
+  the `unique_id`, so both variants of the same search term may coexist. Bundled into
+  the same release, at the user's explicit choice: the previously-deferred tap-to-open
+  change (`coordinator.py` now sets both `url` and `clickAction`) and the new iOS
+  blueprint - those two aren't verified on a real device yet (see the respective
+  entries above). The README banners now sit in an aligned table too (label + button
+  in two neat, responsive columns).
