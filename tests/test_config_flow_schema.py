@@ -25,6 +25,7 @@ def test_only_query_is_required() -> None:
     assert result["radius_km"] == 25
     assert result["scan_interval_minutes"] == 15
     assert result["postcode"] == ""
+    assert result["title_only"] is False
     assert "min_price" not in result
     assert "condition" not in result
 
@@ -67,6 +68,15 @@ def test_build_unique_id_differs_when_filters_differ() -> None:
     with_price = {**base, "min_price": 50.0}
 
     assert _build_unique_id(base) != _build_unique_id(with_price)
+
+
+def test_build_unique_id_differs_when_title_only_differs() -> None:
+    # "fiets" in alleen de titel is een andere zoekopdracht dan "fiets" in titel
+    # + advertentietekst - beide mogen dus naast elkaar bestaan.
+    base = {"query": "fiets", "postcode": "1012JS", "radius_km": 25}
+    title_only = {**base, "title_only": True}
+
+    assert _build_unique_id(base) != _build_unique_id(title_only)
 
 
 def test_normalize_notify_service_strips_notify_prefix_and_whitespace() -> None:

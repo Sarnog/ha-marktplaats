@@ -31,6 +31,12 @@ CONDITIONS: dict[str, int] = {
 }
 
 CONF_QUERY = "query"
+# Marktplaats' zoek-API kan de zoekterm tegen alleen de titel matchen, of tegen
+# titel EN advertentietekst (querystring-param searchInTitleAndDescription; het
+# is exact de "Ook in advertentietekst zoeken"-optie op marktplaats.nl zelf).
+# Standaard (False) zoekt in beide - het bredere, historische gedrag; True
+# beperkt tot alleen de titel voor strakkere, maar minder, treffers.
+CONF_TITLE_ONLY = "title_only"
 CONF_POSTCODE = "postcode"
 CONF_RADIUS_KM = "radius_km"
 CONF_MIN_PRICE = "min_price"

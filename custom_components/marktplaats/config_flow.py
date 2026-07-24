@@ -25,6 +25,7 @@ from .const import (
     CONF_QUERY,
     CONF_RADIUS_KM,
     CONF_SCAN_INTERVAL_MINUTES,
+    CONF_TITLE_ONLY,
     DEFAULT_RADIUS_KM,
     DEFAULT_SCAN_INTERVAL_MINUTES,
     DOMAIN,
@@ -47,6 +48,7 @@ CONDITION_SELECTOR = selector.SelectSelector(
 DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_QUERY): str,
+        vol.Optional(CONF_TITLE_ONLY, default=False): bool,
         vol.Optional(CONF_NAME): str,
         vol.Optional(CONF_POSTCODE, default=""): str,
         vol.Optional(CONF_RADIUS_KM, default=DEFAULT_RADIUS_KM): vol.All(
@@ -71,6 +73,7 @@ def _build_unique_id(data: dict[str, Any]) -> str:
     zoekterm (andere filters) wel apart mogen bestaan."""
     parts = [
         data[CONF_QUERY].strip().lower(),
+        str(data.get(CONF_TITLE_ONLY, False)),
         data[CONF_POSTCODE],
         str(data[CONF_RADIUS_KM]),
         str(data.get(CONF_MIN_PRICE)),
@@ -129,6 +132,7 @@ class MarktplaatsConfigFlow(ConfigFlow, domain=DOMAIN):
             postcode,
             data[CONF_RADIUS_KM],
             limit=1,
+            title_only=data.get(CONF_TITLE_ONLY, False),
             min_price=data.get(CONF_MIN_PRICE),
             max_price=data.get(CONF_MAX_PRICE),
             condition=data.get(CONF_CONDITION),
