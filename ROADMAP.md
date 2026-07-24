@@ -11,6 +11,14 @@ prioriteren of af te wijzen.
 De geschiedenis van wat er al gebouwd en gewijzigd is, staat **niet** hier maar in de
 [release notes](https://github.com/Sarnog/ha-marktplaats/releases) van elke versie.
 
+### Status: HACS-opname in behandeling
+
+Er is al een pull request ingediend bij [hacs/default](https://github.com/hacs/default/pull/9338)
+om ha-marktplaats in de standaard HACS-store op te nemen. Zodra deze is goedgekeurd, is de
+integratie rechtstreeks in HACS te vinden en te installeren - **zonder** eerst een custom
+repository toe te voegen. De PR wacht op review door de HACS-maintainers; de goedkeuringsstatus
+wordt wekelijks (elke vrijdag) gecontroleerd.
+
 ### Should have
 
 - **Paginering / limiet-verbetering.** Marktplaats geeft maximaal de 30 nieuwste
@@ -56,6 +64,13 @@ has been discussed or approved; it's a place to pick from, prioritize or reject.
 
 The history of what has already been built and changed is **not** here but in the
 [release notes](https://github.com/Sarnog/ha-marktplaats/releases) of each version.
+
+### Status: HACS inclusion pending
+
+A pull request has already been submitted to [hacs/default](https://github.com/hacs/default/pull/9338)
+to include ha-marktplaats in the default HACS store. Once approved, the integration can be found
+and installed directly through HACS - **without** first adding a custom repository. The PR is
+awaiting review by the HACS maintainers; the approval status is checked weekly (every Friday).
 
 ### Should have
 
