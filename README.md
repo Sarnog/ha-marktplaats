@@ -173,6 +173,11 @@ python search.py --once          # eenmalige test
 python search.py                 # blijft draaien, elke INTERVAL_MINUTES (min. 15)
 ```
 
+### Architectuur
+
+De interne opzet van de integratie — de lagen, hun verantwoordelijkheden en de
+conventies — staat in [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ### Ideeën en geschiedenis
 
 Toekomstige uitbreidingen en ideeën staan in [`ROADMAP.md`](ROADMAP.md). De
@@ -339,6 +344,11 @@ cp config.example.py config.py   # fill in your own postcode/search term/filters
 python search.py --once          # one-off test
 python search.py                 # runs continuously, every INTERVAL_MINUTES (min. 15)
 ```
+
+### Architecture
+
+The integration's internal structure — the layers, their responsibilities and the
+conventions — is documented in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Ideas and history
 
