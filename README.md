@@ -50,6 +50,9 @@ aanroept. Zie "Bekende risico's" hieronder.
 
 ### Installatie
 
+**Vereist:** Home Assistant **2024.6** of nieuwer. De integratie gebruikt
+`entry.runtime_data` met een getypeerde config entry, die sinds 2024.6 bestaat.
+
 **Via HACS** (aanbevolen): klik de HACS-badge bovenaan dit bestand, of voeg deze repository
 handmatig toe als **custom repository** in HACS (HACS > drie puntjes > Aangepaste
 repositories > deze GitHub-URL, categorie "Integratie").
@@ -239,6 +242,9 @@ Marktplaats has no public "search as a buyer" API; this integration uses the int
 risks" below.
 
 ### Installation
+
+**Requires:** Home Assistant **2024.6** or newer. The integration uses
+`entry.runtime_data` with a typed config entry, which exists since 2024.6.
 
 **Via HACS** (recommended): click the HACS badge at the top of this file, or add this
 repository manually as a **custom repository** in HACS (HACS > three dots > Custom
